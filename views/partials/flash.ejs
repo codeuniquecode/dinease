@@ -1,0 +1,28 @@
+<div class="flash-container" id="flashContainer">
+    <% if (typeof flashMessage !== 'undefined') { %>
+        <% const msgs = flashMessage; %>
+        <% if (msgs.success && msgs.success.length > 0) { %>
+            <% msgs.success.forEach(msg => { %>
+                <div class="flash-msg flash-success">
+                    <i class="bi bi-check-circle-fill me-2"></i><%= msg %>
+                </div>
+            <% }) %>
+        <% } %>
+        <% if (msgs.error && msgs.error.length > 0) { %>
+            <% msgs.error.forEach(msg => { %>
+                <div class="flash-msg flash-error">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i><%= msg %>
+                </div>
+            <% }) %>
+        <% } %>
+    <% } %>
+</div>
+<script>
+    setTimeout(() => {
+        document.querySelectorAll('.flash-msg').forEach(el => {
+            el.style.transition = 'opacity 0.5s';
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 500);
+        });
+    }, 4000);
+</script>

@@ -1,0 +1,58 @@
+<%- include('../partials/head', { title: 'Order Confirmed', pageStyle: 'customer' }) %>
+<body style="background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh;">
+<%- include('../partials/flash') %>
+
+<div style="max-width:420px;width:100%;padding:24px;">
+    <div style="text-align:center;margin-bottom:20px;">
+        <a href="/" class="nav-logo" style="font-family:'Playfair Display',serif;font-size:22px;color:var(--primary);font-weight:700;text-decoration:none;">🍽 DineEase</a>
+    </div>
+    <div class="card" style="border-radius:16px;">
+        <div class="card-body p-5 text-center">
+            <div class="confirmation-icon">
+                <i class="bi bi-check-lg" style="font-size:36px;color:#27AE60;"></i>
+            </div>
+            <h2 style="font-family:'Playfair Display',serif;margin-bottom:4px;">Order Placed!</h2>
+            <p style="color:var(--text-muted);font-size:14px;margin-bottom:24px;">
+                Your order has been sent to the kitchen
+            </p>
+
+            <div style="background:var(--bg);padding:16px;border-radius:10px;margin-bottom:20px;text-align:left;">
+                <div class="d-flex justify-content-between mb-2" style="font-size:13px;">
+                    <span style="color:var(--text-muted);">Order Number</span>
+                    <strong><%= order.orderNumber %></strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2" style="font-size:13px;">
+                    <span style="color:var(--text-muted);">Table</span>
+                    <span>Table <%= order.table?.tableNumber %></span>
+                </div>
+                <div class="d-flex justify-content-between mb-2" style="font-size:13px;">
+                    <span style="color:var(--text-muted);">Items</span>
+                    <span><%= order.items.length %> item(s)</span>
+                </div>
+                <div class="d-flex justify-content-between" style="font-size:13px;">
+                    <span style="color:var(--text-muted);">Estimated Total</span>
+                    <span style="font-weight:700;color:var(--primary);">Rs. <%= order.subtotal.toFixed(0) %></span>
+                </div>
+            </div>
+
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6;">
+                Your waiter will confirm shortly. Kitchen will begin preparing once confirmed.
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+               <a href="/order/new?tableId=<%= order.table._id %>" class="btn-primary-custom" style="display:block;text-decoration:none;padding:11px;">
+    <i class="bi bi-plus-circle me-1"></i>Add More Items to Table <%= order.table?.tableNumber %>
+</a>
+                <a href="/my-orders" style="font-size:13px;color:var(--primary);text-decoration:none;padding:8px;">
+                    View All My Orders
+                </a>
+                <a href="/" style="font-size:13px;color:var(--text-muted);text-decoration:none;padding:4px;">
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>

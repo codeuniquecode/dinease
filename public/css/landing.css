@@ -1,0 +1,1045 @@
+/* =============================================================
+   DineEase — Landing Page Stylesheet (landing.css)
+   Loaded ONLY on the home route, on top of main.css.
+   Design tokens:
+     Paper   #FAF8F4   Ink     #13151A
+     Emerald #1F6F54   Brass   #C9A227
+     Slate   #6B7280   Border  #E8E3D8
+   Type: Fraunces (display) / Inter (body) / JetBrains Mono (data)
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
+
+:root {
+    --paper: #FAF8F4;
+    --paper-dim: #F3F0E8;
+    --ink: #13151A;
+    --ink-soft: #33363F;
+    --emerald: #1F6F54;
+    --emerald-deep: #16513E;
+    --emerald-tint: #E6F0EC;
+    --brass: #C9A227;
+    --brass-deep: #A6831C;
+    --slate: #6B7280;
+    --border: #E8E3D8;
+    --border-deep: #D8D2C2;
+}
+
+/* ---------- Reset / base for landing only ---------- */
+.ld body,
+body.ld-body {
+    background: var(--paper);
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+}
+
+body.ld-body {
+    margin: 0;
+}
+
+.ld * {
+    box-sizing: border-box;
+}
+
+.ld h1,
+.ld h2,
+.ld h3,
+.ld .ld-serif {
+    font-family: 'Fraunces', serif;
+}
+
+.ld .mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.ld a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.ld img {
+    max-width: 100%;
+    display: block;
+}
+
+.ld section {
+    position: relative;
+}
+
+/* ---------- Top announcement strip ---------- */
+.ld-strip {
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    font-size: 12.5px;
+    letter-spacing: .04em;
+    padding: 8px 16px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.ld-strip b {
+    color: var(--brass);
+    font-weight: 600;
+}
+
+/* ---------- Navbar ---------- */
+.ld-nav {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    background: rgba(250, 248, 244, .92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+}
+
+.ld-nav-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+}
+
+.ld-logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--ink);
+}
+
+.ld-logo .ld-logo-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    background: var(--emerald);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--paper);
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.ld-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+}
+
+.ld-nav-links a {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    transition: color .15s;
+}
+
+.ld-nav-links a:hover {
+    color: var(--emerald);
+}
+
+.ld-nav-cta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ld-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1.5px solid transparent;
+    transition: transform .15s, box-shadow .15s, background .15s, border-color .15s;
+    cursor: pointer;
+}
+
+.ld-btn-primary {
+    background: var(--emerald);
+    color: #fff;
+}
+
+.ld-btn-primary:hover {
+    background: var(--emerald-deep);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(31, 111, 84, .25);
+}
+
+.ld-btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--border-deep);
+}
+
+.ld-btn-ghost:hover {
+    border-color: var(--emerald);
+    color: var(--emerald);
+}
+
+.ld-btn-sm {
+    padding: 8px 16px;
+    font-size: 13.5px;
+}
+
+.ld-nav-user {
+    font-size: 13.5px;
+    color: var(--slate);
+    margin-right: 4px;
+}
+
+/* ---------- Hero ---------- */
+.ld-hero {
+    padding: 88px 28px 64px;
+    background:
+        radial-gradient(900px 480px at 84% -10%, rgba(31, 111, 84, .07), transparent 60%),
+        var(--paper);
+    border-bottom: 1px solid var(--border);
+}
+
+.ld-hero-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 64px;
+    align-items: center;
+}
+
+.ld-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    color: var(--emerald-deep);
+    background: var(--emerald-tint);
+    border: 1px solid #CFE4DA;
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin-bottom: 22px;
+}
+
+.ld-eyebrow .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--emerald);
+}
+
+.ld-h1 {
+    font-size: 50px;
+    line-height: 1.07;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -.01em;
+    margin: 0 0 22px;
+}
+
+.ld-h1 em {
+    font-style: normal;
+    color: var(--emerald);
+    position: relative;
+}
+
+.ld-sub {
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--slate);
+    max-width: 480px;
+    margin: 0 0 32px;
+}
+
+.ld-hero-ctas {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.ld-btn-lg {
+    padding: 14px 26px;
+    font-size: 15px;
+    border-radius: 9px;
+}
+
+.ld-trust-row {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.ld-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+}
+
+.ld-trust-item .ld-trust-ico {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--paper-dim);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+}
+
+/* ---------- Hero visual: receipt-ticket signature element ---------- */
+.ld-hero-visual {
+    position: relative;
+    padding-bottom: 30px;
+}
+
+.ld-ticket {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 30px 60px -20px rgba(19, 21, 26, .18), 0 2px 8px rgba(19, 21, 26, .04);
+    padding: 0;
+    overflow: hidden;
+    transform: rotate(-1.1deg);
+}
+
+.ld-ticket-head {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ld-ticket-head .tk-brand {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.ld-ticket-head .tk-no {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #9AA0AC;
+}
+
+.ld-ticket-body {
+    padding: 20px 22px;
+}
+
+.ld-tk-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 13.5px;
+}
+
+.ld-tk-row:last-child {
+    border-bottom: none;
+}
+
+.ld-tk-row .it-name {
+    color: var(--ink-soft);
+}
+
+.ld-tk-row .it-amt {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.ld-tk-divider {
+    border-top: 1px dashed var(--border-deep);
+    margin: 10px 0;
+}
+
+.ld-tk-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 8px;
+}
+
+.ld-tk-total .tot-label {
+    font-size: 13px;
+    color: var(--slate);
+}
+
+.ld-tk-total .tot-amt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--emerald-deep);
+}
+
+.ld-tk-footer {
+    background: var(--paper-dim);
+    padding: 14px 22px;
+    display: flex;
+    gap: 10px;
+}
+
+.ld-tk-badge {
+    flex: 1;
+    text-align: center;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 6px;
+}
+
+.ld-tk-badge .b-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--emerald-deep);
+}
+
+.ld-tk-badge .b-lbl {
+    font-size: 9.5px;
+    color: var(--slate);
+    letter-spacing: .03em;
+    margin-top: 2px;
+    text-transform: uppercase;
+}
+
+/* Floating mini card behind ticket */
+.ld-float-card {
+    position: absolute;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 14px 30px -10px rgba(19, 21, 26, .15);
+    padding: 13px 16px;
+    font-size: 12.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ld-float-1 {
+    top: -18px;
+    left: -26px;
+    transform: rotate(2deg);
+}
+
+.ld-float-2 {
+    bottom: -22px;
+    right: -34px;
+    transform: rotate(-2deg);
+}
+
+.ld-float-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.ld-float-dot.live {
+    background: #1F6F54;
+    box-shadow: 0 0 0 3px rgba(31, 111, 84, .18);
+}
+
+.ld-float-dot.warn {
+    background: var(--brass);
+    box-shadow: 0 0 0 3px rgba(201, 162, 39, .18);
+}
+
+/* ---------- Logo / trust strip (restaurants using it) ---------- */
+.ld-logostrip {
+    padding: 30px 28px;
+    border-bottom: 1px solid var(--border);
+}
+
+.ld-logostrip-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.ld-logostrip-label {
+    font-size: 12px;
+    color: var(--slate);
+    letter-spacing: .04em;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.ld-logo-chip {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    color: var(--ink-soft);
+    opacity: .55;
+    font-weight: 500;
+}
+
+/* ---------- Section shared ---------- */
+.ld-section {
+    padding: 96px 28px;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.ld-section-head {
+    max-width: 620px;
+    margin: 0 0 56px;
+}
+
+.ld-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    color: var(--emerald-deep);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 16px;
+}
+
+.ld-kicker::before {
+    content: '';
+    width: 22px;
+    height: 1.5px;
+    background: var(--brass);
+    display: block;
+}
+
+.ld-h2 {
+    font-size: 34px;
+    font-weight: 600;
+    line-height: 1.18;
+    color: var(--ink);
+    margin: 0 0 14px;
+}
+
+.ld-section-desc {
+    font-size: 15.5px;
+    color: var(--slate);
+    line-height: 1.65;
+}
+
+/* ---------- Feature grid (algorithms / capabilities) ---------- */
+.ld-feat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+}
+
+.ld-feat-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 26px;
+    transition: transform .18s, box-shadow .18s, border-color .18s;
+}
+
+.ld-feat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px -16px rgba(19, 21, 26, .14);
+    border-color: var(--border-deep);
+}
+
+.ld-feat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--brass-deep);
+    font-weight: 700;
+    letter-spacing: .04em;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.ld-feat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: var(--emerald-tint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    margin-bottom: 18px;
+    color: var(--emerald-deep);
+}
+
+.ld-feat-card h3 {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 9px;
+    font-family: 'Inter', sans-serif;
+}
+
+.ld-feat-card p {
+    font-size: 13.8px;
+    color: var(--slate);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.ld-feat-tag {
+    display: inline-block;
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--emerald-deep);
+    background: var(--emerald-tint);
+    padding: 3px 9px;
+    border-radius: 5px;
+    letter-spacing: .02em;
+}
+
+/* ---------- Algorithm spotlight (3 cards, numbered — real sequence of how an order flows) ---------- */
+.ld-algo-section {
+    background: var(--ink);
+}
+
+.ld-algo-section .ld-kicker {
+    color: var(--brass);
+}
+
+.ld-algo-section .ld-h2,
+.ld-algo-section .ld-section-desc {
+    color: var(--paper);
+}
+
+.ld-algo-section .ld-section-desc {
+    color: #A9AEB8;
+}
+
+.ld-algo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #262A33;
+    border: 1px solid #262A33;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.ld-algo-card {
+    background: #181B22;
+    padding: 32px 28px;
+}
+
+.ld-algo-step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 34px;
+    font-weight: 700;
+    color: #2B3038;
+    margin-bottom: 18px;
+    line-height: 1;
+}
+
+.ld-algo-card h3 {
+    color: var(--paper);
+    font-size: 16.5px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    font-family: 'Inter', sans-serif;
+}
+
+.ld-algo-card p {
+    color: #9AA0AC;
+    font-size: 13.5px;
+    line-height: 1.65;
+    margin: 0 0 16px;
+}
+
+.ld-algo-formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--brass);
+    background: rgba(201, 162, 39, .08);
+    border: 1px solid rgba(201, 162, 39, .25);
+    padding: 9px 12px;
+    border-radius: 7px;
+    display: block;
+    line-height: 1.5;
+}
+
+/* ---------- Analytics / dashboard showcase ---------- */
+.ld-dash-section {
+    background: var(--paper-dim);
+}
+
+.ld-dash-grid {
+    display: grid;
+    grid-template-columns: .92fr 1.08fr;
+    gap: 54px;
+    align-items: center;
+}
+
+.ld-dash-points {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.ld-dash-point {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.ld-dash-point-ico {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    color: var(--emerald-deep);
+}
+
+.ld-dash-point h4 {
+    font-size: 14.5px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: var(--ink);
+}
+
+.ld-dash-point p {
+    font-size: 13px;
+    color: var(--slate);
+    margin: 0;
+    line-height: 1.55;
+}
+
+.ld-mock {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 30px 60px -24px rgba(19, 21, 26, .18);
+    overflow: hidden;
+}
+
+.ld-mock-top {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ld-mock-tabs {
+    display: flex;
+    gap: 18px;
+    font-size: 12.5px;
+    color: var(--slate);
+}
+
+.ld-mock-tabs span.active {
+    color: var(--ink);
+    font-weight: 600;
+    border-bottom: 2px solid var(--emerald);
+    padding-bottom: 3px;
+}
+
+.ld-mock-body {
+    padding: 20px;
+}
+
+.ld-mock-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.ld-mock-stat {
+    background: var(--paper-dim);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px;
+}
+
+.ld-mock-stat .s-lbl {
+    font-size: 10.5px;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+
+.ld-mock-stat .s-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-top: 4px;
+}
+
+.ld-mock-stat .s-delta {
+    font-size: 11px;
+    color: var(--emerald);
+    margin-top: 2px;
+}
+
+.ld-mock-chart {
+    height: 130px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--paper-dim);
+    position: relative;
+    overflow: hidden;
+}
+
+.ld-mock-chart svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* ---------- Operational flow band (4 roles) ---------- */
+.ld-role-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.ld-role-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 20px;
+    background: #fff;
+    text-align: left;
+}
+
+.ld-role-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 10px;
+}
+
+.ld-role-card h4 {
+    font-size: 15.5px;
+    font-weight: 600;
+    margin: 0 0 8px;
+}
+
+.ld-role-card p {
+    font-size: 13px;
+    color: var(--slate);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ---------- Pricing-style "what's included" strip ---------- */
+.ld-incl-section {
+    background: var(--emerald-deep);
+}
+
+.ld-incl-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+}
+
+.ld-incl-item {
+    padding: 34px 24px;
+    border-right: 1px solid rgba(255, 255, 255, .12);
+}
+
+.ld-incl-item:last-child {
+    border-right: none;
+}
+
+.ld-incl-item .i-val {
+    font-family: 'Fraunces', serif;
+    font-size: 30px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.ld-incl-item .i-lbl {
+    font-size: 13px;
+    color: rgba(255, 255, 255, .72);
+    margin-top: 6px;
+    line-height: 1.5;
+}
+
+/* ---------- CTA band ---------- */
+.ld-cta-section {
+    background: var(--ink);
+    padding: 90px 28px;
+    text-align: center;
+}
+
+.ld-cta-section .ld-h2 {
+    color: var(--paper);
+}
+
+.ld-cta-section .ld-sub2 {
+    color: #9AA0AC;
+    font-size: 15.5px;
+    max-width: 480px;
+    margin: 0 auto 34px;
+}
+
+.ld-cta-row {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ---------- Footer ---------- */
+.ld-footer {
+    background: var(--paper-dim);
+    border-top: 1px solid var(--border);
+    padding: 56px 28px 28px;
+}
+
+.ld-footer-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.ld-footer-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.ld-footer-brand {
+    max-width: 280px;
+}
+
+.ld-footer-brand p {
+    font-size: 13.5px;
+    color: var(--slate);
+    line-height: 1.6;
+    margin-top: 14px;
+}
+
+.ld-footer-cols {
+    display: flex;
+    gap: 56px;
+    flex-wrap: wrap;
+}
+
+.ld-footer-col h5 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--slate);
+    margin: 0 0 14px;
+}
+
+.ld-footer-col a {
+    display: block;
+    font-size: 13.8px;
+    color: var(--ink-soft);
+    margin-bottom: 11px;
+}
+
+.ld-footer-col a:hover {
+    color: var(--emerald);
+}
+
+.ld-footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 22px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 12.5px;
+    color: var(--slate);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width:980px) {
+    .ld-hero-inner {
+        grid-template-columns: 1fr;
+    }
+
+    .ld-hero-visual {
+        order: -1;
+        max-width: 440px;
+        margin: 0 auto 12px;
+    }
+
+    .ld-dash-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ld-feat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ld-algo-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ld-role-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ld-incl-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ld-incl-item {
+        border-bottom: 1px solid rgba(255, 255, 255, .12);
+    }
+}
+
+@media (max-width:640px) {
+    .ld-nav-links {
+        display: none;
+    }
+
+    .ld-h1 {
+        font-size: 36px;
+    }
+
+    .ld-feat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ld-role-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ld-incl-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ld-section {
+        padding: 64px 20px;
+    }
+
+    .ld-hero {
+        padding: 48px 20px;
+    }
+}

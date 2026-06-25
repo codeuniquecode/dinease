@@ -1,0 +1,233 @@
+<%- include('../partials/head', { title: 'Kitchen Display', pageStyle: 'kitchen' }) %>
+<body>
+<%- include('../partials/flash') %>
+
+<div class="kitchen-header">
+    <div class="d-flex align-items-center gap-3">
+        <a href="/kitchen/display" style="text-decoration:none;">
+            <div class="kitchen-brand">🔥 Kitchen Display</div>
+        </a>
+        <span style="font-size:11px;color:#555;">DineEase</span>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <div style="font-size:12px;">
+            <span class="connection-dot" id="connDot"></span>
+            <span id="connStatus" style="color:#888;">Connecting...</span>
+        </div>
+        <div class="kitchen-clock" id="kitchenClock"></div>
+        <a href="/logout" style="color:#666;font-size:13px;text-decoration:none;">Logout</a>
+    </div>
+</div>
+
+<!-- Kitchen flow guide -->
+<div class="kitchen-flow">
+    <span style="color:#666;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-right:4px;">Your job:</span>
+    <span class="flow-step-k active"><i class="bi bi-check-circle me-1"></i>Confirm</span>
+    <i class="bi bi-arrow-right" style="color:#444;"></i>
+    <span class="flow-step-k active"><i class="bi bi-fire me-1"></i>Start Preparing</span>
+    <i class="bi bi-arrow-right" style="color:#444;"></i>
+    <span class="flow-step-k active"><i class="bi bi-bell me-1"></i>Mark Ready</span>
+    <i class="bi bi-arrow-right" style="color:#444;"></i>
+    <span class="flow-step-k" style="color:#555;"><i class="bi bi-person-check me-1"></i>Waiter Serves</span>
+    <i class="bi bi-arrow-right" style="color:#333;"></i>
+    <span class="flow-step-k" style="color:#555;"><i class="bi bi-receipt me-1"></i>Waiter Bills</span>
+</div>
+
+<div id="ordersContainer">
+    <% if (orders.length === 0) { %>
+    <div class="no-orders">
+        <i class="bi bi-check-circle" style="font-size:64px;color:#2A2A2A;display:block;margin-bottom:16px;"></i>
+        <div style="font-size:20px;color:#555;">All Clear — No Pending Orders</div>
+        <div style="color:#444;font-size:14px;margin-top:8px;">New orders will appear here automatically</div>
+    </div>
+    <% } else { %>
+    <div class="orders-grid" id="ordersGrid">
+        <% orders.forEach(order => { %>
+        <div class="order-card
+            <%= order.priorityScore >= 7 ? 'priority-high' : order.priorityScore >= 4 ? 'priority-med' : '' %>
+            <%= order.status === 'preparing' ? 'status-preparing' : '' %>"
+            id="order-<%= order._id %>">
+
+            <div class="order-header">
+                <div>
+                    <div class="order-num"><%= order.orderNumber %></div>
+                    <div style="font-size:11px;color:#666;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px;">
+                        <%= order.status %>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div class="table-badge">T-<%= order.table?.tableNumber %></div>
+                    <div style="font-size:10px;color:#666;margin-top:4px;"><%= order.table?.location %></div>
+                </div>
+            </div>
+
+            <!-- Priority bar -->
+            <div style="padding:6px 16px 2px;">
+                <div class="priority-bar-wrap">
+                    <div class="priority-fill" style="width:<%= Math.min(order.priorityScore * 10, 100) %>%;background:<%= order.priorityScore >= 7 ? '#C0392B' : order.priorityScore >= 4 ? '#E67E22' : '#27AE60' %>"></div>
+                </div>
+                <div style="text-align:right;font-size:10px;color:#555;margin-top:2px;">
+                    <span data-priority-text>Priority: <%= order.priorityScore %>/10</span>
+                    <% if (order.priorityScore >= 7) { %> 🔥<% } %>
+                </div>
+            </div>
+
+            <div class="order-items">
+                <% order.items.forEach(item => { %>
+                <div class="order-item">
+                    <div>
+                        <div class="item-name"><%= item.name %></div>
+                        <% if (item.specialNote) { %>
+                        <div class="item-note">📝 <%= item.specialNote %></div>
+                        <% } %>
+                    </div>
+                    <span class="item-qty">×<%= item.quantity %></span>
+                </div>
+                <% }) %>
+            </div>
+
+            <div class="order-footer">
+                <div class="wait-time" data-placed="<%= order.placedAt %>">
+                    <i class="bi bi-clock me-1"></i>
+                    <span class="wait-label">calculating...</span>
+                </div>
+<% if (order.status === 'placed' || order.status === 'confirmed') { %>
+<button class="btn-kitchen btn-preparing"
+    onclick="updateStatus('<%= order._id %>', 'preparing')">
+    <i class="bi bi-fire me-1"></i>Start Preparing
+</button>
+<% } %>
+<% if (order.status === 'preparing') { %>
+<button class="btn-kitchen btn-ready"
+    onclick="updateStatus('<%= order._id %>', 'ready')">
+    <i class="bi bi-bell-fill me-1"></i>Mark Ready!
+</button>
+<% } %>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+    <% } %>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    // Clock
+    function updateClock() {
+        document.getElementById('kitchenClock').textContent = new Date().toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000); updateClock();
+
+    // Wait times
+    function updateWaitTimes() {
+        document.querySelectorAll('.wait-time').forEach(el => {
+            const placed = new Date(el.dataset.placed);
+            const mins = Math.floor((Date.now() - placed) / 60000);
+            const label = mins < 1 ? 'Just now' : mins + ' min ago';
+            el.querySelector('.wait-label').textContent = label;
+            el.classList.toggle('urgent', mins >= 20);
+        });
+    }
+    setInterval(updateWaitTimes, 15000); updateWaitTimes();
+
+    // Socket.io
+    const socket = io();
+    socket.emit('join', { role: 'kitchen' });
+
+    socket.on('connect', () => {
+        document.getElementById('connDot').classList.remove('offline');
+        document.getElementById('connStatus').textContent = 'Live';
+        document.getElementById('connStatus').style.color = '#27AE60';
+    });
+    socket.on('disconnect', () => {
+        document.getElementById('connDot').classList.add('offline');
+        document.getElementById('connStatus').textContent = 'Disconnected';
+        document.getElementById('connStatus').style.color = '#C0392B';
+    });
+
+    socket.on('newOrder', (data) => {
+        // Show notification then reload
+        showNotif(`🔔 New Order: ${data.orderNumber} — Table ${data.tableNumber}`);
+        setTimeout(() => location.reload(), 1500);
+    });
+
+    socket.on('orderStatusUpdate', (data) => {
+        if (data.status === 'completed' || data.status === 'cancelled') {
+            const card = document.getElementById('order-' + data.orderId);
+            if (card) {
+                card.style.transition = 'opacity 0.5s, transform 0.5s';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => card.remove(), 500);
+            }
+        }
+    });
+
+    function showNotif(msg) {
+        const el = document.createElement('div');
+        el.style.cssText = 'position:fixed;top:70px;right:20px;background:#C8873A;color:white;padding:14px 20px;border-radius:10px;font-weight:600;z-index:9999;font-size:14px;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+        el.textContent = msg;
+        document.body.appendChild(el);
+        setTimeout(() => { el.style.transition='opacity 0.5s'; el.style.opacity='0'; setTimeout(()=>el.remove(),500); }, 5000);
+    }
+
+    async function updateStatus(orderId, status) {
+        const btn = event.currentTarget;
+        const orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        try {
+            const res = await fetch(`/order/${orderId}/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            const data = await res.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = orig;
+                alert('Error: ' + (data.error || 'Unknown'));
+            }
+        } catch(e) {
+            btn.disabled = false;
+            btn.innerHTML = orig;
+        }
+    }
+
+    // Live priority update — updates bars without full page reload
+    // Only new orders trigger reload (via socket)
+    async function refreshPriorityScores() {
+        try {
+            const res = await fetch('/api/kitchen/orders');
+            const data = await res.json();
+            if (!data.orders) return;
+            data.orders.forEach(order => {
+                const card = document.getElementById('order-' + order._id);
+                if (!card) return;
+                const fill = card.querySelector('.priority-fill');
+                const txt  = card.querySelector('[data-priority-text]');
+                if (fill) {
+                    const pct = Math.min(order.priorityScore * 10, 100);
+                    fill.style.width = pct + '%';
+                    fill.style.background = order.priorityScore >= 7 ? '#C0392B'
+                        : order.priorityScore >= 4 ? '#E67E22' : '#27AE60';
+                    card.classList.remove('priority-high','priority-med');
+                    if (order.priorityScore >= 7) card.classList.add('priority-high');
+                    else if (order.priorityScore >= 4) card.classList.add('priority-med');
+                }
+                if (txt) txt.textContent = 'Priority: ' + order.priorityScore + '/10';
+            });
+            // Re-sort cards by priority (high first)
+            const grid = document.getElementById('ordersGrid');
+            if (!grid) return;
+            const sorted = data.orders.sort((a,b) => b.priorityScore - a.priorityScore);
+            sorted.forEach(o => { const c = document.getElementById('order-'+o._id); if(c) grid.appendChild(c); });
+        } catch(e) {}
+    }
+    // Update every 60s — no disruptive reload
+    setInterval(refreshPriorityScores, 60000);
+</script>
+</body></html>

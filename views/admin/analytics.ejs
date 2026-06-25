@@ -1,0 +1,186 @@
+<%- include('../partials/head', { title: 'Analytics' , pageStyle: 'admin'}) %>
+<body>
+<%- include('../partials/flash') %>
+<%- include('../partials/adminSidebar', { activePage: 'analytics' }) %>
+<div class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">Analytics</h1>
+        <span style="font-size:12px;color:var(--text-muted);">All 5 self-implemented algorithms from proposal</span>
+    </div>
+    <div class="page-body">
+
+
+        <div class="row g-4 mb-4">
+            <!-- Algorithm 1: SMA Forecast (30-day) -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <span>Revenue Forecast — Last 30 Days + 3-Day Projection</span>
+                        <span class="badge" style="background:var(--primary);color:white;font-size:10px;">n = 7 day window</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <canvas id="smaChart" height="60"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Algorithm 5: Peak Hour -->
+            <div class="col-xl-8">
+                <div class="card">
+                    <div class="card-header">Peak Hour Detection</div>
+                    <div class="card-body p-4">
+                        <canvas id="peakChart" height="100"></canvas>
+                        <div id="peakInfo" style="margin-top:14px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Sellers -->
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-header">Best-Selling Items (by frequency ranking)</div>
+                    <div class="card-body p-4">
+                        <canvas id="bestSellersChart" height="260"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Category Revenue -->
+            <div class="col-xl-6">
+                <div class="card">
+                    <div class="card-header">Revenue Distribution by Category</div>
+                    <div class="card-body p-4">
+                        <canvas id="catRevChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Algorithm 4 trigger info -->
+            <div class="col-xl-6">
+                <div class="card">
+                    <div class="card-header">Discount Engine — How Savings Are Applied</div>
+                    <div class="card-body p-4">
+                        <div style="font-size:13px;">
+                            <div class="d-flex align-items-start gap-3 mb-4">
+                                <i class="bi bi-heart-fill" style="color:var(--primary);font-size:20px;margin-top:2px;"></i>
+                                <div>
+                                    <div style="font-weight:600;">Loyalty Discount — 5%</div>
+                                    <div style="color:var(--text-muted);font-size:12px;">Triggered when customer has ≥ 10 past orders</div>
+                                    <div style="font-size:11px;color:#888;margin-top:2px;">D_loyalty = 0.05 if totalOrders ≥ 10 else 0</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-start gap-3 mb-4">
+                                <i class="bi bi-collection-fill" style="color:#2980B9;font-size:20px;margin-top:2px;"></i>
+                                <div>
+                                    <div style="font-weight:600;">Combo Discount — 10%</div>
+                                    <div style="color:var(--text-muted);font-size:12px;">Triggered when ≥ 3 items from same category</div>
+                                    <div style="font-size:11px;color:#888;margin-top:2px;">D_combo = 0.10 if max_category_count ≥ 3</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-start gap-3 mb-4">
+                                <i class="bi bi-sun-fill" style="color:#E67E22;font-size:20px;margin-top:2px;"></i>
+                                <div>
+                                    <div style="font-weight:600;">Happy Hour — 15%</div>
+                                    <div style="color:var(--text-muted);font-size:12px;">Triggered 14:00 – 17:00 daily</div>
+                                    <div style="font-size:11px;color:#888;margin-top:2px;">D_happyhour = 0.15 if 14 ≤ hour &lt; 17</div>
+                                </div>
+                            </div>
+                            <div style="background:#F9F9F9;padding:12px;border-radius:8px;font-size:12px;">
+                                <strong>Multiplicative formula (prevents overflow):</strong><br>
+                                <code style="font-size:11px;">Final = Base × (1 − Dl) × (1 − Dc) × (1 − Dh)</code><br>
+                                <span style="color:var(--text-muted);">Max possible combined discount: 27.32%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    const forecast = <%- forecastSeries %>;
+    const peakRaw  = <%- peakData %>;
+    const sellers  = <%- bestSellers %>;
+    const catRev   = <%- categoryRevenue %>;
+
+    // ---- Algorithm 1: SMA Chart ----
+    const smaLabels = forecast.map((d, i) => {
+        const offset = forecast.filter((x, j) => x.type === 'actual' && j <= i).length;
+        if (d.type === 'predicted') return `Day +${i - forecast.filter(x => x.type === 'actual').length + 1} (Forecast)`;
+        const dt = new Date(); dt.setDate(dt.getDate() - (forecast.filter(x => x.type === 'actual').length - i));
+        return dt.toLocaleDateString('en-NP', { month: 'short', day: 'numeric' });
+    });
+
+    new Chart(document.getElementById('smaChart'), {
+        type: 'line',
+        data: {
+            labels: smaLabels,
+            datasets: [
+                { label: 'Actual Revenue (Rs.)', data: forecast.map(d => d.type === 'actual' ? d.value : null),
+                  borderColor: '#C8873A', backgroundColor: 'rgba(200,135,58,0.08)', borderWidth: 2.5,
+                  pointRadius: 3, tension: 0.4, fill: true },
+                { label: 'SMA Forecast (Rs.)', data: forecast.map(d => d.type === 'predicted' ? d.value : null),
+                  borderColor: '#2980B9', borderDash: [8,4], borderWidth: 2,
+                  pointRadius: 6, pointStyle: 'triangle', tension: 0.3 }
+            ]
+        },
+        options: { responsive: true, scales: { y: { ticks: { callback: v => 'Rs.' + v.toLocaleString() } } } }
+    });
+
+    // ---- Algorithm 5: Peak Hour ----
+    new Chart(document.getElementById('peakChart'), {
+        type: 'bar',
+        data: {
+            labels: peakRaw.hourAnalysis.map(h => h.label),
+            datasets: [
+                { label: 'Orders', data: peakRaw.hourAnalysis.map(h => h.orderCount),
+                  backgroundColor: peakRaw.hourAnalysis.map(h => h.isPeak ? '#C0392B' : 'rgba(200,135,58,0.65)'),
+                  borderRadius: 5 },
+                { label: 'Threshold (μ+σ)', data: new Array(24).fill(peakRaw.threshold),
+                  type: 'line', borderColor: '#2980B9', borderDash: [5,5], borderWidth: 1.5,
+                  pointRadius: 0, fill: false }
+            ]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'top' } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+
+    document.getElementById('peakInfo').innerHTML =
+        `<b>μ (mean):</b> ${peakRaw.mean} orders/hr &nbsp;|&nbsp; <b>σ (std dev):</b> ${peakRaw.stdDev} &nbsp;|&nbsp;
+         <b>Threshold (μ+σ):</b> ${peakRaw.threshold} &nbsp;|&nbsp;
+         <b>Peak hours:</b> ${peakRaw.peakHours.map(h => h+':00').join(', ') || 'None yet'} &nbsp;
+         <span style="color:#C0392B;font-weight:600;">(shown in red)</span>`;
+
+    // ---- Best Sellers ----
+    new Chart(document.getElementById('bestSellersChart'), {
+        type: 'bar',
+        data: {
+            labels: sellers.map(s => s.name.length > 18 ? s.name.slice(0,17)+'…' : s.name),
+            datasets: [{ label: 'Total Orders', data: sellers.map(s => s.orderCount),
+                backgroundColor: '#C8873A', borderRadius: 6, barThickness: 18 }]
+        },
+        options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    // ---- Category Revenue ----
+    new Chart(document.getElementById('catRevChart'), {
+        type: 'doughnut',
+        data: {
+            labels: catRev.map(c => c._id),
+            datasets: [{ data: catRev.map(c => c.revenue),
+                backgroundColor: ['#C8873A','#2980B9','#27AE60','#8E44AD','#E67E22','#C0392B'],
+                borderWidth: 3 }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'right' },
+            tooltip: { callbacks: { label: ctx => ` Rs. ${ctx.raw.toLocaleString()}` } } } }
+    });
+</script>
+</body></html>

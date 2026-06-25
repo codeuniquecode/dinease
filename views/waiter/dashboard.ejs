@@ -1,0 +1,268 @@
+<%- include('../partials/head', { title: 'Waiter Dashboard', pageStyle: 'waiter' }) %>
+<body>
+<%- include('../partials/flash') %>
+<%- include('../partials/waiterSidebar', { activePage: 'dashboard' }) %>
+
+<div class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">Waiter Dashboard</h1>
+        <a href="/waiter/new-order" class="btn-primary-custom">
+            <i class="bi bi-plus-circle-fill me-2"></i>New Order
+        </a>
+    </div>
+    <div class="page-body">
+
+        <!-- ===== STEP GUIDE (always visible) ===== -->
+        <div class="card mb-4" style="background:linear-gradient(135deg,#1A1A1A,#2D1A0A);border-color:#3D2A14;">
+            <div class="card-body p-3">
+                <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Order Flow</div>
+                <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;gap:6px;">
+                    <% const steps = [
+                        {s:'placed',    label:'Placed',    icon:'bi-cart-check',    color:'#1A6B8A'},
+                        {s:'confirmed', label:'Confirmed', icon:'bi-check-circle',  color:'#117A65'},
+                        {s:'preparing', label:'Preparing', icon:'bi-fire',          color:'#D4890A'},
+                        {s:'ready',     label:'Ready',     icon:'bi-bell-fill',     color:'#27AE60'},
+                        {s:'served',    label:'Served',    icon:'bi-person-check',  color:'#7D3C98'},
+                        {s:'billed',    label:'Billed',    icon:'bi-receipt',       color:'#D35400'},
+                        {s:'completed', label:'Paid ✓',   icon:'bi-check2-all',    color:'#27AE60'},
+                    ]; %>
+                    <% steps.forEach((step, i) => { %>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:<%= step.color %>;">
+                            <i class="bi <%= step.icon %> me-1"></i><%= step.label %>
+                        </div>
+                        <% if (i < steps.length - 1) { %>
+                        <i class="bi bi-arrow-right" style="color:#444;font-size:12px;"></i>
+                        <% } %>
+                    </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== READY ALERT ===== -->
+        <% if (readyOrders.length > 0) { %>
+        <div class="ready-alert">
+            <i class="bi bi-bell-fill" style="color:#27AE60;font-size:20px;flex-shrink:0;animation:bell 1s infinite;"></i>
+            <div>
+                <strong style="color:#1E8449;">🍽 <%= readyOrders.length %> order(s) ready — please serve now!</strong>
+                <div style="font-size:12px;color:#555;margin-top:2px;">
+                    <% readyOrders.forEach(o => { %>
+                    <span style="margin-right:10px;font-weight:600;">
+                        <%= o.orderNumber %> — Table <%= o.table?.tableNumber %>
+                    </span>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+        <style>
+        @keyframes bell { 0%,100%{transform:rotate(0)}25%{transform:rotate(-15deg)}75%{transform:rotate(15deg)} }
+        </style>
+        <% } %>
+
+        <div class="row g-4">
+            <!-- ===== LEFT: TABLE GRID ===== -->
+            <div class="col-xl-3">
+                <div class="card h-100">
+                    <div class="card-header">Tables</div>
+                    <div class="card-body p-3">
+                        <div class="d-flex flex-wrap gap-2">
+                            <% tables.forEach(table => { %>
+                            <div style="text-align:center;">
+                                <% if (table.status === 'available') { %>
+                                <a href="/waiter/new-order?tableId=<%= table._id %>"
+                                    class="table-floor-btn available" style="display:flex;"
+                                    title="Click to place new order">
+                                    <div>T-<%= table.tableNumber %></div>
+                                    <div style="font-size:10px;font-weight:400;"><%= table.capacity %>p</div>
+                                </a>
+                                <% } else { %>
+                                <div class="table-floor-btn <%= table.status %>" title="<%= table.status %>">
+                                    <div>T-<%= table.tableNumber %></div>
+                                    <div style="font-size:10px;font-weight:400;"><%= table.capacity %>p</div>
+                                </div>
+                                <% } %>
+                                <div style="font-size:9px;color:var(--text-muted);margin-top:2px;text-transform:capitalize;">
+                                    <%= table.status %>
+                                </div>
+                            </div>
+                            <% }) %>
+                        </div>
+                        <div style="margin-top:14px;font-size:11px;color:var(--text-muted);display:flex;flex-direction:column;gap:4px;">
+                            <span><span style="color:#27AE60;">■</span> Available — click to order</span>
+                            <span><span style="color:#C0392B;">■</span> Occupied</span>
+                            <span><span style="color:#E67E22;">■</span> Reserved</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== RIGHT: ACTIVE ORDERS ===== -->
+            <div class="col-xl-9">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Active Orders</span>
+                        <div style="display:flex;gap:8px;font-size:11px;">
+                            <span style="background:#EBF5FB;color:#1A6B8A;padding:2px 8px;border-radius:10px;font-weight:600;">
+                                <%= activeOrders.filter(o=>o.status==='placed'||o.status==='confirmed').length %> new
+                            </span>
+                            <span style="background:#FEF9E7;color:#D4890A;padding:2px 8px;border-radius:10px;font-weight:600;">
+                                <%= activeOrders.filter(o=>o.status==='preparing').length %> cooking
+                            </span>
+                            <span style="background:#EAFAF1;color:#27AE60;padding:2px 8px;border-radius:10px;font-weight:600;">
+                                <%= activeOrders.filter(o=>o.status==='ready').length %> ready
+                            </span>
+                            <span style="background:#FDF2E9;color:#D35400;padding:2px 8px;border-radius:10px;font-weight:600;">
+                                <%= activeOrders.filter(o=>o.status==='served'||o.status==='billed').length %> billing
+                            </span>
+                        </div>
+                    </div>
+
+                    <% if (activeOrders.length === 0) { %>
+                    <div style="padding:40px;text-align:center;color:var(--text-muted);">
+                        <i class="bi bi-inbox" style="font-size:40px;display:block;margin-bottom:12px;color:var(--border);"></i>
+                        No active orders. Click an available table to start.
+                    </div>
+                    <% } else { %>
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead><tr>
+                                <th>Order #</th>
+                                <th>Table</th>
+                                <th>Items</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                                <th style="min-width:200px;">Actions</th>
+                            </tr></thead>
+                            <tbody>
+                                <% activeOrders.forEach(order => { %>
+                                <tr style="<%= order.status==='ready'?'background:#F0FFF4':order.status==='billed'?'background:#FFF8F0':'' %>">
+                                    <td>
+                                        <strong><%= order.orderNumber %></strong>
+                                        <div style="font-size:10px;color:var(--text-muted);">
+                                            <%= order.isQROrder ? '📱 QR' : '👨 Staff' %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <strong>T-<%= order.table?.tableNumber %></strong>
+                                        <div style="font-size:11px;color:var(--text-muted);"><%= order.table?.location %></div>
+                                    </td>
+                                    <td>
+                                        <% order.items.slice(0,2).forEach(item => { %>
+                                        <div style="font-size:12px;">
+                                            <%= item.name %> <span style="color:var(--primary);font-weight:600;">×<%= item.quantity %></span>
+                                        </div>
+                                        <% }) %>
+                                        <% if (order.items.length > 2) { %>
+                                        <div style="font-size:11px;color:var(--text-muted);">+<%= order.items.length - 2 %> more</div>
+                                        <% } %>
+                                    </td>
+                                    <td style="font-size:13px;">
+                                        <% if (order.totalAmount > 0) { %>
+                                        <strong style="color:var(--primary);">Rs. <%= order.totalAmount.toFixed(0) %></strong>
+                                        <% } else { %>
+                                        <span style="color:var(--text-muted);">Rs. <%= order.subtotal.toFixed(0) %></span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-<%= order.status %>">
+                                            <%= order.status %>
+                                        </span>
+                                    </td>
+                                    <td style="font-size:12px;color:var(--text-muted);">
+                                        <%= new Date(order.placedAt).toLocaleTimeString('en-NP',{hour:'2-digit',minute:'2-digit'}) %>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-1 flex-wrap">
+
+                                            <%# STEP: Kitchen confirmed → Waiter sees it preparing (no action needed) %>
+                                            <% if (order.status === 'placed') { %>
+                                            <span style="font-size:11px;color:var(--text-muted);">Waiting for kitchen...</span>
+                                            <% } %>
+
+                                            <%# STEP: Kitchen marked ready → Waiter clicks Serve %>
+                                            <% if (order.status === 'ready') { %>
+                                            <button class="btn btn-sm btn-success fw-bold"
+                                                onclick="updateStatus('<%= order._id %>','served')"
+                                                style="animation: pulse 1.5s infinite;">
+                                                <i class="bi bi-person-check-fill me-1"></i>Mark Served
+                                            </button>
+                                            <% } %>
+
+                                            <%# STEP: Waiter served → Generate Bill %>
+                                            <% if (order.status === 'served') { %>
+                                            <a href="/order/<%= order._id %>/bill"
+                                                class="btn btn-sm btn-warning fw-bold">
+                                                <i class="bi bi-receipt me-1"></i>Generate Bill
+                                            </a>
+                                            <% } %>
+
+                                            <%# STEP: Bill generated → Payment buttons %>
+                                            <% if (order.status === 'billed') { %>
+                                            <a href="/order/<%= order._id %>/bill"
+                                                class="btn btn-sm btn-warning">
+                                                <i class="bi bi-receipt me-1"></i>View Bill
+                                            </a>
+                                            <a href="/payment/esewa/initiate/<%= order._id %>"
+                                                style="background:#60BB46;color:white;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                                                <span style="font-weight:900;">e</span>eSewa
+                                            </a>
+                                            <% } %>
+
+                                            <%# STEP: Cancel (only for placed/confirmed orders) %>
+                                            <% if (order.status === 'placed' || order.status === 'confirmed') { %>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="if(confirm('Cancel order <%= order.orderNumber %>?')) updateStatus('<%= order._id %>','cancelled')">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                            <% } %>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(39,174,96,0.4)} 50%{box-shadow:0 0 0 6px rgba(39,174,96,0)} }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    socket.emit('join', { role: 'waiter' });
+
+    socket.on('orderStatusUpdate', data => {
+        // Reload when any status changes so action buttons update
+    if (['ready', 'placed', 'confirmed', 'preparing', 'billed', 'completed', 'cancelled'].includes(data.status)) {
+            setTimeout(() => location.reload(), 500);
+        }
+    });
+    socket.on('newOrder', () => setTimeout(() => location.reload(), 800));
+
+    async function updateStatus(orderId, status) {
+        const btn = event.currentTarget;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        const res = await fetch(`/order/${orderId}/status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        if (data.success) location.reload();
+        else { alert('Failed: ' + (data.error || 'Unknown error')); btn.disabled = false; }
+    }
+</script>
+</body></html>

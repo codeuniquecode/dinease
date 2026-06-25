@@ -1,0 +1,252 @@
+<%- include('../partials/head', { title: 'Order Food', pageStyle: 'customer' }) %>
+<body>
+<%- include('../partials/flash') %>
+
+<nav class="customer-nav">
+    <a href="/" class="nav-logo">🍽 DineEase</a>
+    <div class="nav-links d-flex gap-3 align-items-center">
+        <a href="/menu">Menu</a>
+        <a href="/order/new" style="color:var(--primary);font-weight:600;">Order Food</a>
+        <a href="/reserve">Reserve Table</a>
+        <a href="/my-orders">My Orders</a>
+        <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+        <span style="color:#888;font-size:13px;border-left:1px solid #444;padding-left:12px;"><%= currentUser.name %></span>
+        <a href="/logout" style="color:var(--primary);font-size:13px;">Logout</a>
+        <% } %>
+    </div>
+</nav>
+
+<div style="max-width:1200px;margin:0 auto;padding:32px 24px;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:28px;margin-bottom:4px;">Order Food</h1>
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:24px;">Select your table, pick your items, and place your order</p>
+
+    <div class="row g-4">
+        <!-- LEFT: Table + Menu -->
+        <div class="col-lg-8">
+
+            <!-- Step 1: Select Table -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-layout-wtf me-2" style="color:var(--primary);"></i>Step 1 — Select Your Table
+                </div>
+                <div class="card-body p-3">
+                    <div class="d-flex flex-wrap gap-2">
+                        <% tables.forEach(table => { %>
+                        <% if (table.status === 'available') { %>
+                        <button type="button"
+                            class="table-floor-btn available"
+                            data-table-id="<%= table._id %>"
+                            onclick="selectTable('<%= table._id %>', '<%= table.tableNumber %>')">
+                            <div>T-<%= table.tableNumber %></div>
+                            <div style="font-size:10px;font-weight:400;"><%= table.capacity %>p</div>
+                            <div style="font-size:9px;opacity:0.7;"><%= table.location %></div>
+                        </button>
+                        <% } else { %>
+                        <div class="table-floor-btn <%= table.status %>" style="cursor:not-allowed;opacity:0.5;" title="<%= table.status %>">
+                            <div>T-<%= table.tableNumber %></div>
+                            <div style="font-size:10px;font-weight:400;"><%= table.capacity %>p</div>
+                            <div style="font-size:9px;opacity:0.7;"><%= table.status %></div>
+                        </div>
+                        <% } %>
+                        <% }) %>
+                    </div>
+                    <div id="selectedTableInfo" style="display:none;margin-top:12px;padding:8px 14px;background:var(--primary-light);border-radius:8px;font-size:13px;color:var(--primary-dark);font-weight:600;">
+                        <i class="bi bi-check-circle-fill me-2"></i>Table <span id="selectedTableNum"></span> selected
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Pick Items -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-journal-text me-2" style="color:var(--primary);"></i>Step 2 — Pick Your Items
+                </div>
+                <div class="card-body p-3">
+                    <!-- Category tabs -->
+                    <ul class="nav nav-tabs mb-3" id="catTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" onclick="filterMenu('all',this)" style="cursor:pointer;">All</a>
+                        </li>
+                        <% Object.keys(menuByCategory).forEach(cat => { %>
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="filterMenu('<%= cat %>',this)" style="cursor:pointer;"><%= cat %></a>
+                        </li>
+                        <% }) %>
+                    </ul>
+
+                    <div class="row g-3" id="menuGrid">
+                        <% Object.entries(menuByCategory).forEach(([cat, items]) => { %>
+                        <% items.forEach(item => { %>
+                        <div class="col-sm-6 col-md-4 menu-item-card" data-category="<%= cat %>">
+                            <div class="card menu-item-tile h-100" onclick="addToCart('<%= item._id %>','<%= item.name.replace(/'/g,`\\'`) %>',<%= item.price %>,'<%= cat %>')">
+                                <div class="card-body p-3">
+                                    <div style="font-size:24px;margin-bottom:6px;">
+                                        <% const emojis = {Appetizer:'🥟','Main Course':'🍛',Dessert:'🍮',Beverage:'☕',Snacks:'🥨',Special:'⭐'}; %>
+                                        <%= emojis[cat] || '🍽' %>
+                                    </div>
+                                    <div style="font-size:13px;font-weight:600;"><%= item.name %></div>
+                                    <div style="font-size:11px;color:var(--text-muted);margin:3px 0 8px;"><%= item.category %> · ⏱<%= item.preparationTime %>min</div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span style="color:var(--primary);font-weight:700;">Rs. <%= item.price %></span>
+                                        <span style="background:var(--primary);color:white;border-radius:20px;padding:2px 10px;font-size:11px;">+ Add</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }) %>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Cart -->
+        <div class="col-lg-4">
+            <div class="card" style="position:sticky;top:80px;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-cart3 me-2"></i>Your Order</span>
+                    <span class="badge" style="background:var(--primary);color:white;" id="cartCount">0 items</span>
+                </div>
+                <div id="cartBody" style="max-height:360px;overflow-y:auto;">
+                    <div id="emptyCart" class="cart-empty">
+                        <i class="bi bi-cart3" style="font-size:32px;display:block;margin-bottom:8px;color:var(--border);"></i>
+                        Add items from the menu
+                    </div>
+                </div>
+                <div class="card-footer" style="background:transparent;">
+                    <div class="d-flex justify-content-between mb-3" style="font-size:14px;font-weight:700;">
+                        <span>Subtotal</span>
+                        <span id="cartTotal" style="color:var(--primary);">Rs. 0</span>
+                    </div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">
+                        <i class="bi bi-info-circle me-1"></i>Discounts (loyalty, combo, happy hour) applied at billing
+                    </div>
+                    <form id="orderForm" action="/order/place" method="POST">
+                        <input type="hidden" name="tableId" id="formTableId">
+                        <input type="hidden" name="isQROrder" value="false">
+                        <div id="cartInputs"></div>
+                        <button type="submit" id="placeBtn" class="btn-primary-custom w-100" style="padding:12px;" disabled>
+                            <i class="bi bi-send-fill me-2"></i>Place Order
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let cart = {};
+let selectedTableId = null;
+// Auto-select table from URL param (e.g. after adding more items)
+const urlParams = new URLSearchParams(window.location.search);
+const preTable = urlParams.get('tableId');
+if (preTable) {
+    const btn = document.querySelector(`[data-table-id="${preTable}"]`);
+    if (btn) selectTable(preTable, btn.querySelector('div:first-child').textContent.replace('T-',''));
+}
+function selectTable(id, num) {
+    selectedTableId = id;
+    document.getElementById('formTableId').value = id;
+    document.getElementById('selectedTableNum').textContent = num;
+    document.getElementById('selectedTableInfo').style.display = 'block';
+    document.querySelectorAll('.table-floor-btn.available').forEach(b => {
+        b.style.outline = b.dataset.tableId === id ? '3px solid var(--primary)' : 'none';
+    });
+    checkBtn();
+}
+
+function addToCart(id, name, price, category) {
+    if (cart[id]) cart[id].quantity++;
+    else cart[id] = { id, name, price, quantity: 1, category, specialNote: '' };
+    renderCart();
+}
+
+function removeFromCart(id) {
+    if (cart[id]) { cart[id].quantity--; if (cart[id].quantity <= 0) delete cart[id]; }
+    renderCart();
+}
+
+function renderCart() {
+    const items = Object.values(cart);
+    const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+    document.getElementById('emptyCart').style.display = items.length === 0 ? 'block' : 'none';
+    document.getElementById('cartTotal').textContent = 'Rs. ' + subtotal;
+    document.getElementById('cartCount').textContent = items.length + ' item' + (items.length !== 1 ? 's' : '');
+
+    let html = '', inputs = '';
+    items.forEach((item, i) => {
+        html += `<div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+            <div class="d-flex justify-content-between align-items-start">
+                <div style="flex:1;">
+                    <div style="font-size:13px;font-weight:600;">${item.name}</div>
+                    <div style="font-size:11px;color:var(--text-muted);">Rs. ${item.price} each</div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" onclick="removeFromCart('${item.id}')" style="background:#EEE;border:none;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:15px;line-height:1;">−</button>
+                    <span style="font-weight:700;min-width:18px;text-align:center;">${item.quantity}</span>
+                    <button type="button" onclick="addToCart('${item.id}','${item.name}',${item.price},'${item.category}')" style="background:var(--primary);color:white;border:none;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:15px;line-height:1;">+</button>
+                </div>
+            </div>
+            <input type="text" placeholder="Special note (optional)" style="margin-top:6px;width:100%;font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;"
+                onchange="cart['${item.id}'].specialNote=this.value;rebuildInputs()" value="${item.specialNote}">
+        </div>`;
+        inputs += `<input type="hidden" name="items[${i}][menuItemId]" value="${item.id}">
+            <input type="hidden" name="items[${i}][quantity]" value="${item.quantity}">
+            <input type="hidden" name="items[${i}][specialNote]" value="${item.specialNote}">`;
+    });
+
+    if (items.length > 0) {
+        document.getElementById('cartBody').innerHTML = html + `<div id="emptyCart" class="cart-empty" style="display:none;"></div>`;
+    }
+    document.getElementById('cartInputs').innerHTML = inputs;
+    checkBtn();
+}
+
+function rebuildInputs() {
+    let inputs = '';
+    Object.values(cart).forEach((item, i) => {
+        inputs += `<input type="hidden" name="items[${i}][menuItemId]" value="${item.id}">
+            <input type="hidden" name="items[${i}][quantity]" value="${item.quantity}">
+            <input type="hidden" name="items[${i}][specialNote]" value="${item.specialNote}">`;
+    });
+    document.getElementById('cartInputs').innerHTML = inputs;
+}
+
+function checkBtn() {
+    document.getElementById('placeBtn').disabled = !(Object.keys(cart).length > 0 && selectedTableId);
+}
+
+function filterMenu(cat, el) {
+    document.querySelectorAll('.menu-item-card').forEach(c => {
+        c.style.display = (cat === 'all' || c.dataset.category === cat) ? '' : 'none';
+    });
+    document.querySelectorAll('#catTabs .nav-link').forEach(a => a.classList.remove('active'));
+    el.classList.add('active');
+}
+// Real-time table availability
+const socket = io();
+socket.on('tableStatusUpdate', (data) => {
+    const btn = document.querySelector(`[data-table-id="${data.tableId}"]`);
+    if (!btn) return;
+    if (data.status === 'occupied') {
+        btn.className = 'table-floor-btn occupied';
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.6';
+        btn.onclick = null;
+        if (selectedTableId === data.tableId) {
+            selectedTableId = null;
+            document.getElementById('formTableId').value = '';
+            document.getElementById('selectedTableInfo').style.display = 'none';
+            alert('This table was just taken by another customer. Please select another table.');
+            checkBtn();
+        }
+    } else if (data.status === 'available') {
+        btn.className = 'table-floor-btn available';
+        btn.style.pointerEvents = '';
+        btn.style.opacity = '1';
+    }
+});
+</script>
+</body></html>

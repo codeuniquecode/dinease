@@ -1,0 +1,65 @@
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <a href="/admin/dashboard" style="text-decoration:none;">
+            <div class="brand-name">🍽 DineEase</div>
+            <div class="brand-sub">Admin Panel</div>
+        </a>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">Overview</div>
+        <a href="/admin/dashboard" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">
+            <i class="bi bi-grid-1x2-fill"></i> Dashboard
+        </a>
+        <a href="/admin/analytics" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'analytics' ? 'active' : '' %>">
+            <i class="bi bi-bar-chart-line-fill"></i> Analytics
+        </a>
+
+        <div class="nav-section">Operations</div>
+        <a href="/admin/orders" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'orders' ? 'active' : '' %>">
+            <i class="bi bi-receipt-cutoff"></i> All Orders
+        </a>
+        <a href="/admin/reservations" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'reservations' ? 'active' : '' %>">
+            <i class="bi bi-calendar-check-fill"></i> Reservations
+        </a>
+        <a href="/admin/tables" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'tables' ? 'active' : '' %>">
+            <i class="bi bi-layout-wtf"></i> Tables
+        </a>
+        <a href="/admin/inventory" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'inventory' ? 'active' : '' %>">
+            <i class="bi bi-box-seam-fill"></i> Inventory
+        </a>
+
+        <div class="nav-section">Catalogue</div>
+        <a href="/admin/menu" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'menu' ? 'active' : '' %>">
+            <i class="bi bi-journal-text"></i> Menu Items
+        </a>
+
+        <div class="nav-section">People</div>
+        <a href="/admin/users" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'users' ? 'active' : '' %>">
+            <i class="bi bi-people-fill"></i> Users
+        </a>
+
+        <div class="nav-section">System</div>
+        <a href="/kitchen/display" class="sidebar-link">
+            <i class="bi bi-fire"></i> Kitchen Display
+        </a>
+        <a href="/waiter/dashboard" class="sidebar-link">
+            <i class="bi bi-person-workspace"></i> Waiter View
+        </a>
+        <a href="/logout" class="sidebar-link">
+            <i class="bi bi-box-arrow-left"></i> Logout
+        </a>
+    </nav>
+    <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+    <div class="sidebar-user">
+        <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-primary-custom d-flex align-items-center justify-content-center" style="width:34px;height:34px;background:var(--primary)!important;">
+                <span style="color:white;font-size:13px;font-weight:700;"><%= currentUser.name.charAt(0).toUpperCase() %></span>
+            </div>
+            <div>
+                <div class="user-name"><%= currentUser.name %></div>
+                <div class="user-role"><%= currentUser.role %></div>
+            </div>
+        </div>
+    </div>
+    <% } %>
+</div>

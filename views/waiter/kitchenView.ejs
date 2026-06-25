@@ -1,0 +1,240 @@
+<%- include('../partials/head', { title: 'Kitchen Status', pageStyle: 'waiter' }) %>
+<style>
+body { background: #111; }
+.kv-header {
+    background: #1A1A1A;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #C8873A;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.kv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 14px;
+    padding: 20px;
+}
+.kv-card {
+    background: #1E1E1E;
+    border-radius: 12px;
+    border: 1px solid #333;
+    overflow: hidden;
+}
+.kv-card.st-preparing { border-color: #E67E22; }
+.kv-card.st-ready     { border-color: #27AE60; box-shadow: 0 0 10px rgba(39,174,96,0.3); }
+.kv-card.st-confirmed { border-color: #2980B9; }
+.kv-header-row {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #2A2A2A;
+}
+.kv-items { padding: 12px 16px; }
+.kv-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #2A2A2A;
+    font-size: 13px;
+    color: #DDD;
+}
+.kv-item:last-child { border-bottom: none; }
+.kv-qty { background: #333; color: #EEE; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.kv-footer {
+    padding: 10px 16px;
+    background: #161616;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #666;
+}
+.pbar-wrap { height: 3px; background: #333; border-radius: 2px; }
+.pbar-fill { height: 100%; border-radius: 2px; }
+.conn-dot { width: 8px; height: 8px; border-radius: 50%; background: #27AE60; display: inline-block; margin-right: 5px; }
+.conn-dot.off { background: #C0392B; }
+.ro-badge {
+    background: rgba(41,128,185,0.2);
+    color: #2980B9;
+    border: 1px solid #2980B9;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+</style>
+<body>
+<%- include('../partials/flash') %>
+
+<div class="kv-header">
+    <div class="d-flex align-items-center gap-3">
+        <a href="/waiter/dashboard" style="font-family:'Playfair Display',serif;font-size:20px;color:#C8873A;font-weight:700;text-decoration:none;">🍽 DineEase</a>
+        <span class="ro-badge"><i class="bi bi-eye me-1"></i>Kitchen Monitor — View Only</span>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <div style="font-size:12px;">
+            <span class="conn-dot" id="cDot"></span>
+            <span id="cStatus" style="color:#888;">Connecting...</span>
+        </div>
+        <div style="font-size:18px;font-weight:700;color:#EEE;font-variant-numeric:tabular-nums;" id="clock"></div>
+        <a href="/waiter/dashboard" style="color:#888;font-size:13px;text-decoration:none;">
+            <i class="bi bi-arrow-left me-1"></i>Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Summary bar -->
+<div style="background:#161616;padding:10px 20px;display:flex;gap:20px;align-items:center;border-bottom:1px solid #222;flex-wrap:wrap;">
+    <span style="font-size:12px;color:#666;">Live kitchen queue:</span>
+    <span style="font-size:12px;background:rgba(26,107,138,0.2);color:#2980B9;padding:3px 10px;border-radius:10px;font-weight:600;">
+        <i class="bi bi-check-circle me-1"></i><%= orders.filter(o=>o.status==='confirmed').length %> Confirmed
+    </span>
+    <span style="font-size:12px;background:rgba(230,126,34,0.2);color:#E67E22;padding:3px 10px;border-radius:10px;font-weight:600;">
+        <i class="bi bi-fire me-1"></i><%= orders.filter(o=>o.status==='preparing').length %> Preparing
+    </span>
+    <span style="font-size:12px;background:rgba(39,174,96,0.2);color:#27AE60;padding:3px 10px;border-radius:10px;font-weight:600;">
+        <i class="bi bi-bell me-1"></i><%= orders.filter(o=>o.status==='ready').length %> Ready to Serve
+    </span>
+    <span style="margin-left:auto;font-size:11px;color:#444;">Auto-refreshes via WebSocket</span>
+</div>
+
+<% if (orders.length === 0) { %>
+<div style="text-align:center;padding:80px 20px;color:#555;">
+    <i class="bi bi-check-circle" style="font-size:56px;display:block;margin-bottom:14px;color:#2A2A2A;"></i>
+    <div style="font-size:18px;">No orders currently in kitchen</div>
+    <div style="font-size:13px;margin-top:6px;color:#444;">New orders will appear here automatically</div>
+</div>
+<% } else { %>
+<div class="kv-grid" id="kvGrid">
+    <% orders.forEach(order => { %>
+    <div class="kv-card st-<%= order.status %>" id="kv-<%= order._id %>">
+        <div class="kv-header-row">
+            <div>
+                <div style="font-size:14px;font-weight:700;color:#EEE;"><%= order.orderNumber %></div>
+                <div style="font-size:11px;color:#666;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px;"><%= order.status %></div>
+            </div>
+            <div style="text-align:right;">
+                <div style="background:#C8873A;color:white;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">
+                    T-<%= order.table?.tableNumber %>
+                </div>
+                <div style="font-size:10px;color:#666;margin-top:3px;"><%= order.table?.location %></div>
+            </div>
+        </div>
+
+        <!-- Priority bar -->
+        <div style="padding:5px 16px 2px;">
+            <div class="pbar-wrap">
+                <div class="pbar-fill" style="width:<%= Math.min(order.priorityScore*10,100) %>%;background:<%= order.priorityScore>=7?'#C0392B':order.priorityScore>=4?'#E67E22':'#27AE60' %>"></div>
+            </div>
+            <div style="text-align:right;font-size:10px;color:#555;margin-top:1px;">Priority: <%= order.priorityScore %>/10</div>
+        </div>
+
+        <div class="kv-items">
+            <% order.items.forEach(item => { %>
+            <div class="kv-item">
+                <span><%= item.name %></span>
+                <span class="kv-qty">×<%= item.quantity %></span>
+            </div>
+            <% }) %>
+        </div>
+
+        <div class="kv-footer">
+            <span class="wait-label" data-placed="<%= order.placedAt %>">...</span>
+            <span style="color:<%= order.status==='ready'?'#27AE60':order.status==='preparing'?'#E67E22':'#2980B9' %>;font-weight:600;font-size:12px;">
+                <% if (order.status==='ready') { %>
+                <i class="bi bi-bell-fill me-1" style="animation:blink 1s infinite;"></i>READY — Collect now!
+                <% } else if (order.status==='preparing') { %>
+                <i class="bi bi-fire me-1"></i>Cooking...
+                <% } else { %>
+                <i class="bi bi-clock me-1"></i>Queued
+                <% } %>
+            </span>
+        </div>
+    </div>
+    <% }) %>
+</div>
+<% } %>
+
+<style>
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    // Clock
+    setInterval(() => {
+        document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+    }, 1000);
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+
+    // Wait times
+    function updateWaits() {
+        document.querySelectorAll('.wait-label[data-placed]').forEach(el => {
+            const mins = Math.floor((Date.now() - new Date(el.dataset.placed)) / 60000);
+            el.textContent = mins < 1 ? 'Just placed' : mins + ' min ago';
+            el.style.color = mins >= 20 ? '#C0392B' : '#666';
+        });
+    }
+    setInterval(updateWaits, 15000); updateWaits();
+
+    // Socket — VIEW ONLY, no action buttons
+    const socket = io();
+    socket.emit('join', { role: 'waiter' });
+
+    socket.on('connect', () => {
+        document.getElementById('cDot').classList.remove('off');
+        document.getElementById('cStatus').textContent = 'Live';
+        document.getElementById('cStatus').style.color = '#27AE60';
+    });
+    socket.on('disconnect', () => {
+        document.getElementById('cDot').classList.add('off');
+        document.getElementById('cStatus').textContent = 'Disconnected';
+        document.getElementById('cStatus').style.color = '#C0392B';
+    });
+
+    socket.on('newOrder', () => setTimeout(() => location.reload(), 1000));
+
+    socket.on('orderStatusUpdate', (data) => {
+        const card = document.getElementById('kv-' + data.orderId);
+        if (!card) {
+            // New status we don't have a card for — reload
+            setTimeout(() => location.reload(), 500);
+            return;
+        }
+        if (data.status === 'completed' || data.status === 'cancelled') {
+            card.style.transition = 'opacity 0.5s';
+            card.style.opacity = '0';
+            setTimeout(() => { card.remove(); updateSummary(); }, 500);
+            return;
+        }
+        // Update status label and border
+        card.className = 'kv-card st-' + data.status;
+        const statusLabel = card.querySelector('.kv-header-row div:first-child div:last-child');
+        if (statusLabel) statusLabel.textContent = data.status.toUpperCase();
+        // Update footer
+        const footerRight = card.querySelector('.kv-footer span:last-child');
+        if (footerRight) {
+            if (data.status === 'ready') {
+                footerRight.style.color = '#27AE60';
+                footerRight.innerHTML = '<i class="bi bi-bell-fill me-1" style="animation:blink 1s infinite;"></i>READY — Collect now!';
+            } else if (data.status === 'preparing') {
+                footerRight.style.color = '#E67E22';
+                footerRight.innerHTML = '<i class="bi bi-fire me-1"></i>Cooking...';
+            }
+        }
+        updateSummary();
+    });
+
+    function updateSummary() {
+        // Reload page to refresh summary counts
+        location.reload();
+    }
+</script>
+</body></html>

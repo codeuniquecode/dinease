@@ -1,0 +1,133 @@
+<%- include('../partials/head', { title: 'Reserve a Table', pageStyle: 'customer' }) %>
+<body>
+<%- include('../partials/flash') %>
+
+<nav class="customer-nav">
+    <a href="/" class="nav-logo">🍽 DineEase</a>
+    <div class="nav-links d-flex gap-3 align-items-center">
+        <a href="/menu">Menu</a>
+        <a href="/order/new">Order Food</a>
+        <a href="/reserve" style="color:var(--primary);font-weight:600;">Reserve Table</a>
+        <a href="/my-reservations">My Reservations</a>
+        <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+        <span style="color:#888;font-size:13px;border-left:1px solid #444;padding-left:12px;"><%= currentUser.name %></span>
+        <a href="/logout" style="color:var(--primary);font-size:13px;">Logout</a>
+        <% } %>
+    </div>
+</nav>
+
+<div style="max-width:680px;margin:48px auto;padding:0 24px;">
+    <h1 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:6px;">Reserve a Table</h1>
+    <p style="color:var(--text-muted);margin-bottom:32px;">We'll find the best available table for your group size and time</p>
+
+    <!-- Step 1: Find Table -->
+    <div class="card mb-4">
+        <div class="card-header">Step 1 — Find Available Table</div>
+        <div class="card-body p-4">
+            <form action="/reserve/recommend" method="POST">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Party Size</label>
+                        <input type="number" name="partySize" min="1" max="20" class="form-control" required
+                            value="<%= typeof formData !== 'undefined' ? formData.partySize : '' %>" placeholder="e.g. 4">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Date</label>
+                        <input type="date" name="reservationDate" class="form-control" required
+                            value="<%= typeof formData !== 'undefined' ? formData.reservationDate : '' %>"
+                            min="<%= new Date().toISOString().split('T')[0] %>">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Time Slot</label>
+                        <select name="timeSlot" class="form-select" required>
+                            <option value="">Select slot</option>
+                            <% ['11:00 - 13:00','13:00 - 15:00','17:00 - 19:00','19:00 - 21:00','21:00 - 23:00'].forEach(slot => { %>
+                            <option value="<%= slot %>" <%= typeof formData !== 'undefined' && formData.timeSlot === slot ? 'selected' : '' %>><%= slot %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-outline-custom mt-3">
+                    <i class="bi bi-search me-1"></i>Find Best Table
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recommendation Result -->
+    <% if (typeof recommendation !== 'undefined' && recommendation) { %>
+    <div class="recommendation-card card mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-start gap-3">
+                <div style="font-size:36px;">🎯</div>
+                <div>
+                    <div class="rec-table-name">
+                        Recommended: Table <%= recommendation.tableNumber %>
+                    </div>
+                    <div class="rec-details">
+                        Capacity: <strong><%= recommendation.capacity %> seats</strong> &nbsp;·&nbsp;
+                        Location: <strong><%= recommendation.location %></strong>
+                    </div>
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">
+                        Best fit for your party of <%= formData.partySize %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Confirm -->
+    <div class="card">
+        <div class="card-header">Step 2 — Confirm Your Reservation</div>
+        <div class="card-body p-4">
+            <form action="/reserve" method="POST">
+                <input type="hidden" name="tableId" value="<%= recommendation._id %>">
+                <input type="hidden" name="partySize" value="<%= formData.partySize %>">
+                <input type="hidden" name="reservationDate" value="<%= formData.reservationDate %>">
+                <input type="hidden" name="timeSlot" value="<%= formData.timeSlot %>">
+
+                <div class="row g-3 mb-3">
+                    <div class="col-4">
+                        <div style="background:var(--bg);padding:12px;border-radius:8px;text-align:center;">
+                            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">Party</div>
+                            <div style="font-weight:700;"><%= formData.partySize %> guests</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div style="background:var(--bg);padding:12px;border-radius:8px;text-align:center;">
+                            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">Date</div>
+                            <div style="font-weight:700;font-size:13px;"><%= new Date(formData.reservationDate).toLocaleDateString('en-NP',{month:'short',day:'numeric',year:'numeric'}) %></div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div style="background:var(--bg);padding:12px;border-radius:8px;text-align:center;">
+                            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;">Time</div>
+                            <div style="font-weight:700;font-size:12px;"><%= formData.timeSlot %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Special Requests <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+                    <textarea name="specialRequests" class="form-control" rows="2"
+                        placeholder="Dietary requirements, birthday celebration, seating preference..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary-custom w-100" style="padding:12px;">
+                    <i class="bi bi-calendar-check-fill me-2"></i>Confirm Reservation
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <% } else if (typeof formData !== 'undefined') { %>
+    <div class="card" style="border-color:#C0392B;background:#FDEDEC;">
+        <div class="card-body p-3" style="color:#C0392B;font-size:14px;">
+            <i class="bi bi-x-circle-fill me-2"></i>
+            No available tables found for your selected size, date, and time. Please try a different slot.
+        </div>
+    </div>
+    <% } %>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>

@@ -1,0 +1,46 @@
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <a href="/waiter/dashboard" style="text-decoration:none;">
+            <div class="brand-name">🍽 DineEase</div>
+            <div class="brand-sub">Waiter Panel</div>
+        </a>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">Orders</div>
+        <a href="/waiter/dashboard" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">
+            <i class="bi bi-grid-1x2-fill"></i> Dashboard
+        </a>
+        <a href="/waiter/new-order" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'newOrder' ? 'active' : '' %>">
+            <i class="bi bi-plus-circle-fill"></i> New Order
+        </a>
+        <a href="/waiter/reservations" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'reservations' ? 'active' : '' %>">
+            <i class="bi bi-calendar-check-fill"></i> Reservations
+        </a>
+        <div class="nav-section">Kitchen</div>
+        <a href="/waiter/kitchen-view" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'kitchenView' ? 'active' : '' %>">
+            <i class="bi bi-fire"></i> Kitchen Monitor
+        </a>
+
+        <div class="nav-section">Menu</div>
+        <a href="/menu" class="sidebar-link">
+            <i class="bi bi-journal-text"></i> View Menu
+        </a>
+        <div class="nav-section">Account</div>
+        <a href="/logout" class="sidebar-link">
+            <i class="bi bi-box-arrow-left"></i> Logout
+        </a>
+    </nav>
+    <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+    <div class="sidebar-user">
+        <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:34px;height:34px;background:var(--primary);">
+                <span style="color:white;font-size:13px;font-weight:700;"><%= currentUser.name.charAt(0).toUpperCase() %></span>
+            </div>
+            <div>
+                <div class="user-name"><%= currentUser.name %></div>
+                <div class="user-role"><%= currentUser.role %></div>
+            </div>
+        </div>
+    </div>
+    <% } %>
+</div>

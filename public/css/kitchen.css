@@ -1,0 +1,110 @@
+/* =============================================
+   DineEase — Kitchen Display Stylesheet
+   ============================================= */
+
+body { background: #111; color: #EEE; margin: 0; }
+
+.kitchen-header {
+    background: #1A1A1A;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #C8873A;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.kitchen-brand { font-family: 'Playfair Display', serif; font-size: 22px; color: #C8873A; }
+.kitchen-clock { font-size: 20px; font-weight: 700; color: #EEE; font-variant-numeric: tabular-nums; }
+
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 20px;
+}
+
+.order-card {
+    background: #1E1E1E;
+    border-radius: 12px;
+    border: 1px solid #333;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+.order-card:hover { transform: translateY(-2px); }
+.order-card.priority-high { border-color: #C0392B; box-shadow: 0 0 12px rgba(192,57,43,0.3); }
+.order-card.priority-med  { border-color: #E67E22; }
+.order-card.status-preparing { border-color: #F39C12; }
+
+.order-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #2A2A2A;
+}
+.order-num { font-size: 15px; font-weight: 700; color: #EEE; }
+.table-badge {
+    background: #C8873A; color: white;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 12px; font-weight: 700;
+}
+
+.order-items { padding: 14px 16px; }
+.order-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; border-bottom: 1px solid #2A2A2A;
+}
+.order-item:last-child { border-bottom: none; }
+.item-name { font-size: 14px; color: #DDD; }
+.item-qty {
+    background: #333; color: #EEE;
+    padding: 2px 8px; border-radius: 12px;
+    font-size: 12px; font-weight: 700;
+}
+.item-note { font-size: 11px; color: #888; font-style: italic; }
+
+.priority-bar-wrap { height: 3px; background: #333; border-radius: 2px; overflow: hidden; }
+.priority-fill { height: 100%; border-radius: 2px; }
+
+.order-footer {
+    padding: 12px 16px;
+    background: #161616;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.wait-time { font-size: 12px; color: #888; }
+.wait-time.urgent { color: #E74C3C; font-weight: 700; }
+
+.btn-kitchen {
+    padding: 7px 14px; border-radius: 8px;
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.2s;
+}
+.btn-confirm   { background: #1A6B8A; color: white; }
+.btn-preparing { background: #E67E22; color: white; }
+.btn-ready     { background: #27AE60; color: white; font-size: 13px; padding: 8px 16px; }
+.btn-confirm:hover   { background: #155a73; }
+.btn-preparing:hover { background: #d35400; }
+.btn-ready:hover     { background: #1E8449; }
+
+.no-orders { text-align: center; padding: 80px 20px; color: #555; }
+.connection-dot { width: 10px; height: 10px; border-radius: 50%; background: #27AE60; display: inline-block; margin-right: 6px; }
+.connection-dot.offline { background: #C0392B; }
+
+/* Flow explanation bar */
+.kitchen-flow {
+    background: #161616;
+    padding: 10px 20px;
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #222;
+    flex-wrap: wrap;
+}
+.flow-step-k { color: #AAA; font-weight: 600; }
+.flow-step-k.active { color: #C8873A; }

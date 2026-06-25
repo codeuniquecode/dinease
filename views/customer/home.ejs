@@ -1,0 +1,429 @@
+<%- include('../partials/head', { title: 'Welcome' , pageStyle: 'customer' }) %>
+    <link rel="stylesheet" href="/css/landing.css">
+
+    <body class="ld ld-body">
+        <%- include('../partials/flash') %>
+
+            <!-- ===== NAVBAR ===== -->
+            <nav class="ld-nav">
+                <div class="ld-nav-inner">
+                    <a href="/" class="ld-logo">
+                        <span class="ld-logo-mark">D</span>
+                        DineEase
+                    </a>
+                    <div class="ld-nav-links">
+                        <a href="/menu">Menu</a>
+                        <a href="/order/new">Order</a>
+                        <a href="/reserve">Reserve</a>
+                        <a href="/my-orders">My Orders</a>
+                    </div>
+                    <div class="ld-nav-cta">
+                        <% if (typeof currentUser !=='undefined' && currentUser) { %>
+                            <span class="ld-nav-user">
+                                <%= currentUser.name.split(' ')[0] %></span>
+            <a href="/logout" class="ld-btn ld-btn-ghost ld-btn-sm">Logout</a>
+            <% } else { %>
+            <a href="/login" class="ld-btn ld-btn-ghost ld-btn-sm">Sign In</a>
+            <a href="/register" class="ld-btn ld-btn-primary ld-btn-sm">Sign Up</a>
+            <% } %>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="ld-hero">
+    <div class="ld-hero-inner">
+        <div>
+            <h1 class="ld-h1">
+                Order. <em>Reserve. </em>Enjoy.
+            </h1>
+            <p class="ld-sub">
+QR ordering, reservations, real-time kitchen updates, inventory tracking, and digital billing, all connected through one restaurant platform.
+            </p>
+            <div class="ld-hero-ctas">
+                <a href="/order/new" class="ld-btn ld-btn-primary ld-btn-lg">
+                    <i class="bi bi-cart3"></i> Order Now
+                </a>
+                <a href="/reserve" class="ld-btn ld-btn-ghost ld-btn-lg">
+                    <i class="bi bi-calendar3"></i> Reserve a Table
+                </a>
+            </div>
+            <div class="ld-trust-row">
+                <div class="ld-trust-item"><span class="ld-trust-ico">🍽</span> <%= counts.popular || ' 20+' %> dishes
+                                    on the menu
+                    </div>
+                    <div class="ld-trust-item"><span class="ld-trust-ico">₨</span> Cash or eSewa</div>
+                    <div class="ld-trust-item"><span class="ld-trust-ico">⏱</span> Order straight from your table</div>
+                </div>
+                </div>
+
+                <!-- Signature element: a guest-facing "what's good today" panel -->
+                <div class="ld-hero-visual">
+
+
+                    <div class="ld-ticket">
+                        <div class="ld-ticket-head">
+                            <span class="tk-brand">Today's Favourites</span>
+                            <span class="tk-no mono">DineEase</span>
+                        </div>
+                        <div class="ld-ticket-body">
+                            <div class="ld-tk-row"><span class="it-name">🥟 Chicken Momo</span><span class="it-amt">Rs.
+                                    180</span></div>
+                            <div class="ld-tk-row"><span class="it-name">🍛 Dal Bhat Set</span><span class="it-amt">Rs.
+                                    240</span></div>
+                            <div class="ld-tk-row"><span class="it-name">☕ Masala Tea</span><span class="it-amt">Rs.
+                                    60</span></div>
+                            <div class="ld-tk-row"><span class="it-name">🍮 Kheer</span><span class="it-amt">Rs.
+                                    120</span></div>
+                            <div class="ld-tk-divider"></div>
+                            <div class="ld-tk-total">
+                                <span class="tot-label">Happy Hour, 2–5pm</span>
+                                <span class="tot-amt" style="font-size:16px;">15% off</span>
+                            </div>
+                        </div>
+                        <div class="ld-tk-footer">
+                            <div class="ld-tk-badge">
+                                <div class="b-val">⭐ 4.7</div>
+                                <div class="b-lbl">Guest Rating</div>
+                            </div>
+                            <div class="ld-tk-badge">
+                                <div class="b-val">15 min</div>
+                                <div class="b-lbl">Avg. Kitchen Time</div>
+                            </div>
+                            <div class="ld-tk-badge">
+                                <div class="b-val">10</div>
+                                <div class="b-lbl">Tables Open</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ld-float-card ld-float-2">
+                        <span class="ld-float-dot warn"></span> Happy hour ends at 5pm
+                    </div>
+                </div>
+                </div>
+                </section>
+
+                <!-- ===== FEATURES ===== -->
+                <section class="ld-section">
+                    <div class="ld-section-head">
+                        <h2 class="ld-h2">Everything between getting seated and getting the bill</h2>
+                        <p class="ld-section-desc">No waving down a waiter for the menu. No waiting on a paper slip for
+                            the bill. Just a smoother way to eat out.</p>
+                    </div>
+
+                    <div class="ld-feat-grid">
+                        <div class="ld-feat-card">
+                            <span class="ld-feat-num">01</span>
+                            <div class="ld-feat-icon"><i class="bi bi-qr-code"></i></div>
+                            <h3>Order From Your Table</h3>
+                            <p>Scan the code on your table or tell your waiter, either way, your order reaches the
+                                kitchen instantly.</p>
+                            <span class="ld-feat-tag">QR or staff order</span>
+                        </div>
+                        <div class="ld-feat-card">
+                            <span class="ld-feat-num">02</span>
+                            <div class="ld-feat-icon"><i class="bi bi-calendar-check"></i></div>
+                            <h3>Reserve Ahead</h3>
+                            <p>Booking a table for a group? Tell us when and how many, we'll have the right table ready
+                                for you.</p>
+                            <span class="ld-feat-tag">No double-booking</span>
+                        </div>
+                        <div class="ld-feat-card">
+                            <span class="ld-feat-num">03</span>
+                            <div class="ld-feat-icon"><i class="bi bi-tags"></i></div>
+                            <h3>Everyday Discounts</h3>
+                            <p>Happy hour, combo deals, and loyalty savings apply automatically, you never have to ask
+                                for them.</p>
+                            <span class="ld-feat-tag">Applied at billing</span>
+                        </div>
+                        <div class="ld-feat-card">
+                            <span class="ld-feat-num">04</span>
+                            <div class="ld-feat-icon"><i class="bi bi-wallet2"></i></div>
+                            <h3>Pay However Suits You</h3>
+                            <p>Cash on the table or eSewa from your phone, settle the bill the way that's easiest for
+                                you.</p>
+                            <span class="ld-feat-tag">Cash + eSewa</span>
+                        </div>
+                        <div class="ld-feat-card">
+                            <span class="ld-feat-num">05</span>
+                            <div class="ld-feat-icon"><i class="bi bi-receipt"></i></div>
+                            <h3>Clear, Itemised Bills</h3>
+                            <p>Every receipt shows exactly what you ordered, what was discounted, and what you paid, no
+                                surprises.</p>
+                            <span class="ld-feat-tag">PDF receipts</span>
+                        </div>
+                        <div class="ld-feat-card">
+                            <span class="ld-feat-num">06</span>
+                            <div class="ld-feat-icon"><i class="bi bi-broadcast"></i></div>
+                            <h3>Fresh Off the Pass</h3>
+                            <p>The moment your food is ready, it comes straight to your table, no sitting around
+                                waiting on a waiter to notice.</p>
+                            <span class="ld-feat-tag">Served fast</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== ANALYTICS / DASHBOARD SHOWCASE ===== -->
+                <section class="ld-dash-section">
+                    <div class="ld-section">
+                        <div class="ld-dash-grid">
+                            <div>
+                                <h2 class="ld-h2">A dashboard that reflects what actually happened in the dining room
+                                </h2>
+                                <p class="ld-section-desc">No vanity metrics. Every number on this screen is drawn from
+                                    completed, paid orders, cancelled tickets never touch it.</p>
+
+                                <div class="ld-dash-points">
+                                    <div class="ld-dash-point">
+                                        <div class="ld-dash-point-ico"><i class="bi bi-cash-coin"></i></div>
+                                        <div>
+                                            <h4>Revenue, forecast forward</h4>
+                                            <p>A rolling 7-day average projects the next 3 days, so ordering and
+                                                staffing stop being guesswork.</p>
+                                        </div>
+                                    </div>
+                                    <div class="ld-dash-point">
+                                        <div class="ld-dash-point-ico"><i class="bi bi-tags"></i></div>
+                                        <div>
+                                            <h4>Discounts that apply themselves</h4>
+                                            <p>Loyalty, combo, and happy-hour rates stack automatically at billing
+                                                never typed in by hand.</p>
+                                        </div>
+                                    </div>
+                                    <div class="ld-dash-point">
+                                        <div class="ld-dash-point-ico"><i class="bi bi-clipboard-data"></i></div>
+                                        <div>
+                                            <h4>Inventory tied to the menu</h4>
+                                            <p>Stock levels move with every order placed, with thresholds you set per
+                                                ingredient.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ld-mock">
+                                <div class="ld-mock-top">
+                                    <div class="ld-mock-tabs">
+                                        <span class="active">Overview</span>
+                                        <span>Revenue</span>
+                                        <span>Inventory</span>
+                                    </div>
+                                    <span style="font-size:11px;color:#9AA0AC;">Today</span>
+                                </div>
+                                <div class="ld-mock-body">
+                                    <div class="ld-mock-stats">
+                                        <div class="ld-mock-stat">
+                                            <div class="s-lbl">Revenue</div>
+                                            <div class="s-val">₨ 48.2k</div>
+                                            <div class="s-delta">↑ 12% vs avg</div>
+                                        </div>
+                                        <div class="ld-mock-stat">
+                                            <div class="s-lbl">Orders</div>
+                                            <div class="s-val">86</div>
+                                            <div class="s-delta">↑ 6 today</div>
+                                        </div>
+                                        <div class="ld-mock-stat">
+                                            <div class="s-lbl">Peak Window</div>
+                                            <div class="s-val">7–9pm</div>
+                                            <div class="s-delta" style="color:#C9A227;">Busiest window</div>
+                                        </div>
+                                    </div>
+                                    <div class="ld-mock-chart">
+                                        <svg viewBox="0 0 400 130" preserveAspectRatio="none">
+                                            <polyline
+                                                points="0,100 40,90 80,95 120,70 160,75 200,40 240,55 280,30 320,45 360,20 400,32"
+                                                fill="none" stroke="#1F6F54" stroke-width="2.5" />
+                                            <polyline
+                                                points="0,100 40,90 80,95 120,70 160,75 200,40 240,55 280,30 320,45 360,20 400,32 400,130 0,130"
+                                                fill="rgba(31,111,84,0.08)" stroke="none" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== ROLE-BASED WORKFLOW ===== -->
+                <section class="ld-section">
+                    <div class="ld-section-head">
+                        <h2 class="ld-h2">A little of everything, done properly</h2>
+                        <p class="ld-section-desc">Traditional Nepali staples alongside everyday favourites, made
+                            fresh, served hot, every time.</p>
+                    </div>
+                    <div class="ld-role-grid">
+                        <div class="ld-role-card">
+                            <div class="ld-role-tag">🥟 Appetizers</div>
+                            <h4>Momo &amp; Snacks</h4>
+                            <p>Steamed, fried, or jhol, our momo comes the way you like it, with house-made chutney on
+                                the side.</p>
+                        </div>
+                        <div class="ld-role-card">
+                            <div class="ld-role-tag">🍛 Main Course</div>
+                            <h4>Dal Bhat &amp; Curries</h4>
+                            <p>A proper set with rice, lentils, vegetables, and pickle, the meal that needs no
+                                introduction.</p>
+                        </div>
+                        <div class="ld-role-card">
+                            <div class="ld-role-tag">☕ Beverages</div>
+                            <h4>Tea &amp; Cold Drinks</h4>
+                            <p>Masala chai brewed the traditional way, alongside the usual cold drinks for a hot
+                                afternoon.</p>
+                        </div>
+                        <div class="ld-role-card">
+                            <div class="ld-role-tag">🍮 Dessert</div>
+                            <h4>Something Sweet</h4>
+                            <p>Kheer, gulab jamun, and a small rotating list of desserts to close out the meal properly.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== WHAT'S ON OFFER STRIP ===== -->
+                <!-- <section class="ld-incl-section">
+                    <div class="ld-incl-grid" style="max-width:1180px;margin:0 auto;">
+                        <div class="ld-incl-item">
+                            <div class="i-val">
+                                <%= counts.popular || '20+' %>
+                            </div>
+                            <div class="i-lbl">Dishes on the menu</div>
+                        </div>
+                        <div class="ld-incl-item">
+                            <div class="i-val">10</div>
+                            <div class="i-lbl">Tables, indoor &amp; outdoor</div>
+                        </div>
+                        <div class="ld-incl-item">
+                            <div class="i-val">2–5pm</div>
+                            <div class="i-lbl">Daily happy hour</div>
+                        </div>
+                        <div class="ld-incl-item">
+                            <div class="i-val">7</div>
+                            <div class="i-lbl">Days a week, open late</div>
+                        </div>
+                    </div>
+                </section> -->
+
+                <!-- ===== RESERVATION CTA ===== -->
+                <section class="ld-section">
+                    <div class="ld-dash-grid">
+                        <div>
+                            <h2 class="ld-h2">Book your table in seconds</h2>
+                            <p class="ld-section-desc">Tell us your party size and preferred slot, we'll match you to
+                                the right table and confirm it personally before it's locked in.</p>
+                            <div class="ld-dash-points">
+                                <div class="ld-dash-point">
+                                    <div class="ld-dash-point-ico">🎯</div>
+                                    <div>
+                                        <h4>Matched, not guessed</h4>
+                                        <p>Party size and location preference both factor into the suggestion.</p>
+                                    </div>
+                                </div>
+                                <div class="ld-dash-point">
+                                    <div class="ld-dash-point-ico">🔒</div>
+                                    <div>
+                                        <h4>No double-booking</h4>
+                                        <p>Conflict checks run on table, date, and slot before anything saves.</p>
+                                    </div>
+                                </div>
+                                <div class="ld-dash-point">
+                                    <div class="ld-dash-point-ico">📞</div>
+                                    <div>
+                                        <h4>Confirmed by a person</h4>
+                                        <p>Every reservation is personally reviewed before it's marked confirmed.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/reserve" class="ld-btn ld-btn-primary ld-btn-lg"
+                                style="margin-top:32px;display:inline-flex;">
+                                <i class="bi bi-calendar-check-fill"></i> Reserve a Table
+                            </a>
+                        </div>
+
+                        <div class="ld-mock">
+                            <div class="ld-mock-top">
+                                <div class="ld-mock-tabs"><span class="active">Table Status</span></div>
+                            </div>
+                            <div class="ld-mock-body">
+                                <% const locs=['Standard','Window','VIP','Outdoor']; %>
+                                    <% locs.forEach(loc=> { %>
+                                        <div
+                                            style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #E8E3D8;font-size:13.5px;">
+                                            <span style="color:#33363F;">
+                                                <%= loc %>
+                                            </span>
+                                            <span
+                                                style="font-size:11.5px;background:#E6F0EC;color:#16513E;padding:3px 11px;border-radius:20px;font-weight:600;">Available</span>
+                                        </div>
+                                        <% }) %>
+                                            <div style="margin-top:18px;">
+                                                <div
+                                                    style="font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:.03em;margin-bottom:10px;">
+                                                    Upcoming slots</div>
+                                                <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                                                    <% ['11:00','13:00','17:00','19:00','21:00'].forEach(t=> { %>
+                                                        <span
+                                                            style="background:#FAF8F4;border:1px solid #E8E3D8;padding:5px 13px;border-radius:7px;font-size:12.5px;font-family:'JetBrains Mono',monospace;">
+                                                            <%= t %>
+                                                        </span>
+                                                        <% }) %>
+                                                </div>
+                                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== FINAL CTA ===== -->
+                <section class="ld-cta-section">
+                    <h2 class="ld-h2">Hungry? Let's get you seated.</h2>
+                    <p class="ld-sub2">Start an order, reserve a table, or take a look at tonight's menu, whichever's
+                        easiest.</p>
+                    <div class="ld-cta-row">
+                        <a href="/order/new" class="ld-btn ld-btn-primary ld-btn-lg">
+                            <i class="bi bi-cart3"></i> Order Now
+                        </a>
+                        <a href="/menu" class="ld-btn ld-btn-ghost ld-btn-lg"
+                            style="border-color:#3A3F4A;color:#FAF8F4;">
+                            <i class="bi bi-journal-text"></i> View Full Menu
+                        </a>
+                    </div>
+                </section>
+
+                <!-- ===== FOOTER ===== -->
+                <footer class="ld-footer">
+                    <div class="ld-footer-inner">
+                        <div class="ld-footer-top">
+                            <div class="ld-footer-brand">
+                                <a href="/" class="ld-logo">
+                                    <span class="ld-logo-mark">D</span>
+                                    DineEase
+                                </a>
+                                <p>Order, reserve, and pay, everything you need for a good meal, in one place.</p>
+                            </div>
+                            <div class="ld-footer-cols">
+                                <div class="ld-footer-col">
+                                    <h5>Guest</h5>
+                                    <a href="/menu">Menu</a>
+                                    <a href="/order/new">Order</a>
+                                    <a href="/reserve">Reserve</a>
+                                    <a href="/my-orders">My Orders</a>
+                                </div>
+                                <div class="ld-footer-col">
+                                    <h5>Account</h5>
+                                    <a href="/login">Sign In</a>
+                                    <a href="/register">Sign Up</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ld-footer-bottom">
+                            <span>© 2026 DineEase · Lalitpur, Nepal</span>
+                            <span>Good Food, ordered properly.</span>
+                        </div>
+                    </div>
+                </footer>
+
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+
+    </html>

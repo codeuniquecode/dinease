@@ -1,0 +1,14 @@
+<%- include('./partials/head', { title: typeof code !== 'undefined' ? code + ' Error' : 'Error' }) %>
+<body style="background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh;">
+<div style="text-align:center;padding:40px;">
+    <div style="font-family:'Playfair Display',serif;font-size:80px;color:var(--primary);font-weight:700;line-height:1;">
+        <%= typeof code !== 'undefined' ? code : '!' %>
+    </div>
+    <h2 style="margin:12px 0 8px;"><%= typeof message !== 'undefined' ? message : 'Something went wrong' %></h2>
+    <p style="color:var(--text-muted);margin-bottom:24px;">Let's get you back on track.</p>
+    <a href="/" class="btn-primary-custom" style="text-decoration:none;padding:10px 24px;">
+        <i class="bi bi-house-fill me-2"></i>Go Home
+    </a>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>

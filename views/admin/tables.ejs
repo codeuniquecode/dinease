@@ -1,0 +1,164 @@
+<%- include('../partials/head', { title: 'Tables', pageStyle: 'admin' }) %>
+<body>
+<%- include('../partials/flash') %>
+<%- include('../partials/adminSidebar', { activePage: 'tables' }) %>
+<div class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">Table Management</h1>
+        <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addTableModal">
+            <i class="bi bi-plus-circle-fill me-2"></i>Add Table
+        </button>
+    </div>
+    <div class="page-body">
+
+        <!-- Floor Plan -->
+        <div class="card mb-4">
+            <div class="card-header">Floor Plan — Click any table for details</div>
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap gap-3">
+                    <% tables.forEach(table => { %>
+                    <div style="text-align:center;cursor:pointer;" data-bs-toggle="modal" data-bs-target="#tm_<%= table._id %>">
+                        <div style="width:96px;height:96px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:14px;border:2px solid;position:relative;transition:transform 0.15s;
+                            border-color:<%= table.status==='available'?'#27AE60':table.status==='occupied'?'#C0392B':table.status==='reserved'?'#E67E22':'#888' %>;
+                            background:<%= table.status==='available'?'#EAFAF1':table.status==='occupied'?'#FDEDEC':table.status==='reserved'?'#FEF9E7':'#F5F5F5' %>;">
+                            <div style="font-size:18px;"><%= table.location==='VIP'?'👑':table.location==='Window'?'🪟':table.location==='Outdoor'?'🌿':'🪑' %></div>
+                            <div>T-<%= table.tableNumber %></div>
+                            <div style="font-size:10px;font-weight:400;"><%= table.capacity %>p</div>
+                            <% if (table.status==='reserved' && table.reservation) { %>
+                            <div style="position:absolute;top:-6px;right:-6px;background:#E67E22;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">R</div>
+                            <% } %>
+                        </div>
+                        <div style="font-size:10px;color:var(--text-muted);margin-top:3px;text-transform:capitalize;"><%= table.status %></div>
+                        <% if (table.status==='reserved' && table.reservation) { %>
+                        <div style="font-size:9px;color:#E67E22;font-weight:600;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= table.reservation.customer?.name || 'Reserved' %></div>
+                        <% } %>
+                    </div>
+
+                    <!-- Table Modal -->
+                    <div class="modal fade" id="tm_<%= table._id %>" tabindex="-1">
+                        <div class="modal-dialog modal-sm">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h6 class="modal-title">T-<%= table.tableNumber %> — <%= table.location %></h6>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <% if (table.qrCode) { %>
+                                    <div style="text-align:center;margin-bottom:14px;">
+                                        <img src="<%= table.qrCode %>" style="width:140px;height:140px;border-radius:8px;">
+                                        <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Customer scan to order</div>
+                                    </div>
+                                    <% } %>
+                                    <div class="d-flex justify-content-between mb-2" style="font-size:13px;">
+                                        <span style="color:var(--text-muted);">Capacity</span><strong><%= table.capacity %> seats</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-3" style="font-size:13px;">
+                                        <span style="color:var(--text-muted);">Status</span>
+                                        <span class="status-badge status-<%= table.status %>"><%= table.status %></span>
+                                    </div>
+
+                                    <% if (table.status==='reserved' && table.reservation) { %>
+                                    <div style="background:#FEF9E7;border:1px solid #F0C060;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;">
+                                        <div style="font-weight:700;color:#D35400;margin-bottom:8px;"><i class="bi bi-calendar-check me-1"></i>Reservation Details</div>
+                                        <div class="d-flex justify-content-between mb-1"><span style="color:#888;">Guest</span><strong><%= table.reservation.customer?.name||'—' %></strong></div>
+                                        <div class="d-flex justify-content-between mb-1"><span style="color:#888;">Phone</span><span><%= table.reservation.customer?.phone||'—' %></span></div>
+                                        <div class="d-flex justify-content-between mb-1"><span style="color:#888;">Email</span><span style="font-size:11px;"><%= table.reservation.customer?.email||'—' %></span></div>
+                                        <div class="d-flex justify-content-between mb-1"><span style="color:#888;">Party</span><span><%= table.reservation.partySize %> guests</span></div>
+                                        <div class="d-flex justify-content-between mb-1"><span style="color:#888;">Date</span><strong><%= new Date(table.reservation.reservationDate).toLocaleDateString('en-NP',{weekday:'short',month:'short',day:'numeric',year:'numeric'}) %></strong></div>
+                                        <div class="d-flex justify-content-between mb-1"><span style="color:#888;">Slot</span><strong><%= table.reservation.timeSlot %></strong></div>
+                                        <% if (table.reservation.specialRequests) { %>
+                                        <div style="margin-top:6px;padding:6px 8px;background:rgba(0,0,0,0.04);border-radius:6px;font-style:italic;">"<%= table.reservation.specialRequests %>"</div>
+                                        <% } %>
+                                    </div>
+                                    <% } %>
+
+                                    <form action="/admin/tables/<%= table._id %>/status?_method=PATCH" method="POST">
+                                        <label class="form-label" style="font-size:12px;">Change Status</label>
+                                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            <% ['available','occupied','reserved','maintenance'].forEach(s => { %>
+                                            <option value="<%= s %>" <%= table.status===s?'selected':'' %>><%= s.charAt(0).toUpperCase()+s.slice(1) %></option>
+                                            <% }) %>
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+                <div style="margin-top:14px;display:flex;gap:20px;font-size:12px;color:var(--text-muted);flex-wrap:wrap;">
+                    <span><span style="color:#27AE60;">■</span> Available</span>
+                    <span><span style="color:#C0392B;">■</span> Occupied</span>
+                    <span><span style="color:#E67E22;">■</span> Reserved — click to see guest info</span>
+                    <span><span style="color:#888;">■</span> Maintenance</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table List -->
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead><tr><th>Table</th><th>Location</th><th>Capacity</th><th>Status</th><th>Reserved By</th><th>Date &amp; Slot</th><th>Contact</th><th>QR / Actions</th></tr></thead>
+                    <tbody>
+                        <% tables.forEach(table => { %>
+                        <tr style="<%= table.status==='reserved'?'background:#FFFDF0;':'' %>">
+                            <td><strong>T-<%= table.tableNumber %></strong></td>
+                            <td><span style="background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:20px;font-size:11px;"><%= table.location %></span></td>
+                            <td><%= table.capacity %> seats</td>
+                            <td><span class="status-badge status-<%= table.status %>"><%= table.status %></span></td>
+                            <td>
+                                <% if (table.reservation) { %>
+                                <div style="font-size:13px;font-weight:600;"><%= table.reservation.customer?.name||'—' %></div>
+                                <div style="font-size:11px;color:var(--text-muted);">Party: <%= table.reservation.partySize %>p</div>
+                                <% } else { %><span style="color:var(--text-muted);font-size:12px;">—</span><% } %>
+                            </td>
+                            <td>
+                                <% if (table.reservation) { %>
+                                <div style="font-size:12px;font-weight:600;"><%= new Date(table.reservation.reservationDate).toLocaleDateString('en-NP',{month:'short',day:'numeric',year:'numeric'}) %></div>
+                                <div style="font-size:11px;color:var(--text-muted);"><%= table.reservation.timeSlot %></div>
+                                <% } else { %><span style="color:var(--text-muted);font-size:12px;">—</span><% } %>
+                            </td>
+                            <td>
+                                <% if (table.reservation?.customer?.phone) { %>
+                                <a href="tel:<%= table.reservation.customer.phone %>" style="font-size:12px;color:var(--primary);text-decoration:none;font-weight:600;">
+                                    <i class="bi bi-telephone me-1"></i><%= table.reservation.customer.phone %>
+                                </a>
+                                <% } else { %><span style="color:var(--text-muted);font-size:12px;">—</span><% } %>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#tm_<%= table._id %>">
+                                    <% if (table.qrCode) { %><i class="bi bi-qr-code me-1"></i><% } %><i class="bi bi-pencil"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Table Modal -->
+<div class="modal fade" id="addTableModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Add New Table</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <form action="/admin/tables" method="POST">
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-6"><label class="form-label">Table Number</label><input type="number" name="tableNumber" class="form-control" required min="1"></div>
+                    <div class="col-6"><label class="form-label">Capacity</label><input type="number" name="capacity" class="form-control" required min="1" max="20"></div>
+                    <div class="col-12"><label class="form-label">Location</label>
+                        <select name="location" class="form-select">
+                            <option value="Standard">Standard</option><option value="Window">Window</option><option value="VIP">VIP</option><option value="Outdoor">Outdoor</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn-primary-custom">Add Table</button></div>
+        </form>
+    </div></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>

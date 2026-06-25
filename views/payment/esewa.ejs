@@ -1,0 +1,51 @@
+<%- include('../partials/head', { title: 'Pay with eSewa' }) %>
+<body class="auth-body">
+<%- include('../partials/flash') %>
+<div style="max-width:440px;width:100%;padding:24px;">
+    <div style="text-align:center;margin-bottom:24px;">
+        <a href="/" style="font-family:'Playfair Display',serif;font-size:22px;color:var(--primary);font-weight:700;text-decoration:none;">🍽 DineEase</a>
+    </div>
+    <div class="card" style="border-radius:16px;">
+        <div class="card-body p-4">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+                <div style="width:48px;height:48px;background:#60BB46;border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                    <span style="color:white;font-weight:700;font-size:16px;">e</span>
+                </div>
+                <div>
+                    <div style="font-weight:700;font-size:15px;">Pay via eSewa</div>
+                    <div style="font-size:12px;color:var(--text-muted);">Secure Nepal payment</div>
+                </div>
+            </div>
+            <div style="background:var(--bg);padding:14px;border-radius:8px;margin-bottom:16px;">
+                <div class="d-flex justify-content-between mb-1" style="font-size:13px;">
+                    <span style="color:var(--text-muted);">Order</span><strong><%= order.orderNumber %></strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1" style="font-size:13px;">
+                    <span style="color:var(--text-muted);">Table</span><span>Table <%= order.table?.tableNumber %></span>
+                </div>
+                <div class="d-flex justify-content-between" style="font-size:16px;font-weight:700;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
+                    <span>Amount</span><span style="color:#60BB46;">Rs. <%= order.totalAmount.toFixed(2) %></span>
+                </div>
+            </div>
+            <div style="background:#F0FBF0;border:1px solid #C3E6C3;padding:10px 14px;border-radius:8px;font-size:12px;color:#2D6A2D;margin-bottom:20px;">
+                <strong>Test Credentials:</strong> eSewa ID: 9806800001 · Password: Nepal@123 · MPIN: 1122 · OTP: 123456
+            </div>
+            <!-- Auto-submit form to eSewa gateway -->
+            <form id="esewaForm" action="<%= paymentData.gatewayUrl %>" method="POST">
+                <% Object.entries(paymentData).forEach(([key, val]) => { %>
+                <% if (key !== 'gatewayUrl' && key !== 'orderNumber') { %>
+                <input type="hidden" name="<%= key %>" value="<%= val %>">
+                <% } %>
+                <% }) %>
+                <button type="submit" style="width:100%;background:#60BB46;color:white;border:none;padding:13px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">
+                    Pay Rs. <%= order.totalAmount.toFixed(2) %> with eSewa
+                </button>
+            </form>
+            <a href="/waiter/dashboard" style="display:block;text-align:center;margin-top:14px;font-size:13px;color:var(--text-muted);text-decoration:none;">
+                ← Go back, pay cash instead
+            </a>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>
