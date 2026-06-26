@@ -97,27 +97,25 @@ exports.placeOrder = async (req, res) => {
         // Deduct inventory after confirmed order
         await deductInventory(orderItems);
 
-        await Table.findByIdAndUpdate(tableId, { status: 'occupied', currentOrderId: newOrder._id });
-        if (io) io.emit('tableStatusUpdate', { tableId, status: 'occupied' }); // ← ADD THIS
+       const io = req.app.get('io');
 
-        const io = req.app.get('io');
-        if (io) {
-            io.to('kitchen').emit('newOrder', {
-                //await Table.findByIdAndUpdate(tableId, { status: 'occupied', currentOrderId: newOrder._id });
-       // if (io) io.emit('tableStatusUpdate', { tableId, status: 'occupied' }); // ← ADD THIS
-                orderId: newOrder._id,
-                orderNumber: newOrder.orderNumber,
-                tableNumber: table.tableNumber,
-                items: orderItems,
-                priorityScore: newOrder.priorityScore,
-                placedAt: newOrder.placedAt
-            });
-            io.to('waiter').emit('newOrder', {
-                orderNumber: newOrder.orderNumber,
-                tableNumber: table.tableNumber
-            });
-        }
+await Table.findByIdAndUpdate(tableId, { status: 'occupied', currentOrderId: newOrder._id });
+if (io) io.emit('tableStatusUpdate', { tableId, status: 'occupied' });
 
+if (io) {
+    io.to('kitchen').emit('newOrder', {
+        orderId: newOrder._id,
+        orderNumber: newOrder.orderNumber,
+        tableNumber: table.tableNumber,
+        items: orderItems,
+        priorityScore: newOrder.priorityScore,
+        placedAt: newOrder.placedAt
+    });
+    io.to('waiter').emit('newOrder', {
+        orderNumber: newOrder.orderNumber,
+        tableNumber: table.tableNumber
+    });
+}
         if (!inventoryResult.warnings.length) {
             req.flash('success', `Order ${newOrder.orderNumber} placed!`);
         }
