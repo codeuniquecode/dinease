@@ -62,5 +62,24 @@ async function deductInventory(orderItems) {
         }
     }
 }
+// NEW — add this function
+async function restoreInventory(orderItems) {
+    for (const item of orderItems) {
+        const menuItem = await MenuItem.findById(item.menuItem)
+            .select('name ingredients');
+        if (!menuItem) continue;
 
-module.exports = { checkInventory, deductInventory };
+        for (const ingredientName of (menuItem.ingredients || [])) {
+            const inv = await Inventory.findOne({
+                name: { $regex: new RegExp(`^${ingredientName}$`, 'i') }
+            });
+            if (!inv) continue;
+
+            inv.currentStock += item.quantity;
+            await inv.save(); // triggers pre-save hook to recalculate isLow
+        }
+    }
+}
+
+// NEW
+module.exports = { checkInventory, deductInventory, restoreInventory };

@@ -1,16 +1,1 @@
-
-
-
-new issues
-color and logo inconsistency between old landing page and new landing page
-
-when a user orders, it shows failed to order,Failed to place order: Cannot access 'io' before initialization
-
-but the table is then occupied and order is placed
-in different cases the new order button is disabled for users
-in esewa(is this our issue or theirs?-Service is currently unavailable
-)
-
-when the ordered is confirmed in kitchen display the last digit of priority score is increased by .1
-
-when user pays and orders next time the place order is not working again
+check if table is unallocated or not after payment

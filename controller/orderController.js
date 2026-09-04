@@ -4,7 +4,7 @@ const MenuItem = require('../model/menuSchema');
 const User = require('../model/userSchema');
 const RevenueLog = require('../model/revenueLogSchema');
 const { calculateOrderPriority, calculateDiscount } = require('../services/algorithms');
-const { checkInventory, deductInventory } = require('../services/inventoryCheck');
+const { checkInventory, deductInventory, restoreInventory} = require('../services/inventoryCheck');
 const { envConfig } = require('../config/envConfig');
 const moment = require('moment');
 
@@ -426,7 +426,7 @@ exports.downloadInvoice = async (req, res) => {
             ['Payment',     (order.paymentMethod || 'cash').toUpperCase()],
         ];
         if (order.customer?.name)  meta.push(['Customer', order.customer.name]);
-        if (order.customer?.phone) meta.push(['Phone',    order.customer.phone]);
+        if (order.customer?.phone) meta.push(['PAN No.', '123456789']);
         if (order.waiter?.name)    meta.push(['Waiter',   order.waiter.name]);
 
         doc.font('Helvetica').fontSize(7).fillColor('#333');
@@ -531,6 +531,7 @@ exports.getTableOrders = async (req, res) => {
 };
 
 // ---- Cancel order ----
+// NEW
 exports.cancelOrder = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
@@ -538,11 +539,21 @@ exports.cancelOrder = async (req, res) => {
             req.flash('error', 'Cannot cancel a billed or paid order');
             return res.redirect('back');
         }
+
+        // Restore inventory only if kitchen has NOT started preparing yet.
+        // Once preparing begins, ingredients are already in use — no restore.
+        const preKitchenStatuses = ['placed', 'confirmed'];
+        if (preKitchenStatuses.includes(order.status)) {
+            await restoreInventory(order.items);
+        }
+
         order.status = 'cancelled';
         await order.save();
         await Table.findByIdAndUpdate(order.table, { status: 'available', currentOrderId: null });
+
         const io = req.app.get('io');
         if (io) io.emit('orderStatusUpdate', { orderId: order._id, status: 'cancelled' });
+
         req.flash('success', 'Order cancelled');
         res.redirect('back');
     } catch (err) {
