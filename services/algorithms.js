@@ -1,55 +1,8 @@
-/**
- * DineEase Algorithm Suite
- * TU BCA 8th Semester Project III - CACS452
- * All algorithms implemented from mathematical first principles
- * No external statistical or algorithmic libraries used
- */
+
+
 
 // ============================================================
-// ALGORITHM 1: Simple Moving Average (SMA) Revenue Forecasting
-// Formula: SMA(t) = (1/n) × Σ Sales(t-i)  for i = 0 to n-1
-// ============================================================
-function simpleMovingAverage(salesData, windowSize = 7) {
-    if (!salesData || salesData.length === 0) return 0;
-
-    // Use last n days only (sliding window)
-    const window = salesData.slice(-windowSize);
-    const n = window.length;
-
-    if (n === 0) return 0;
-
-    // Manual summation — no reduce/library
-    let sum = 0;
-    for (let i = 0; i < n; i++) {
-        sum = sum + window[i];
-    }
-
-    const sma = sum / n;
-    return Math.round(sma * 100) / 100; // round to 2 decimal places
-}
-
-// Build forecast array for chart (last 7 days actual + next 3 predicted)
-function buildForecastSeries(revenueHistory, windowSize = 7) {
-    const result = [];
-    const data = revenueHistory.map(r => r.totalRevenue);
-
-    for (let i = 0; i < data.length; i++) {
-        result.push({ type: 'actual', value: data[i] });
-    }
-
-    // Predict next 3 days using sliding window
-    let workingData = [...data];
-    for (let day = 1; day <= 3; day++) {
-        const predicted = simpleMovingAverage(workingData, windowSize);
-        result.push({ type: 'predicted', value: predicted });
-        workingData.push(predicted); // slide forward
-    }
-
-    return result;
-}
-
-// ============================================================
-// ALGORITHM 2: Order Priority Scoring (Weighted Normalization)
+// ALGORITHM 1: Order Priority Scoring (Weighted Normalization)
 // Priority = W1×Norm(WaitTime) + W2×Norm(TableImportance) + W3×Norm(ItemCount)
 // W1=0.5, W2=0.3, W3=0.2
 // ============================================================
@@ -107,7 +60,7 @@ function sortOrdersByPriority(orders) {
 }
 
 // ============================================================
-// ALGORITHM 3: Table Recommendation (Seat Utilization Fit Score)
+// ALGORITHM 2: Table Recommendation (Seat Utilization Fit Score)
 // FitScore = 100 - ((Capacity - PartySize) / Capacity × 100) - LocationPenalty
 // ============================================================
 function recommendTable(tables, partySize) {
@@ -145,6 +98,111 @@ function recommendTable(tables, partySize) {
 
     return bestTable;
 }
+
+// ============================================================
+// ALGORITHM 3: Peak Hour Detection (Mean + Standard Deviation)
+// μ = Σ f(i) / 24     σ = √(Σ(f(i) - μ)² / 24)
+// Peak if f(hour) > μ + σ
+// ============================================================
+function detectPeakHours(hourlyOrderData) {
+    // hourlyOrderData: array of 24 values (index = hour, value = order count)
+    const n = 24;
+    const freq = new Array(n).fill(0);
+
+    // Fill in provided data
+    for (let h = 0; h < n; h++) {
+        freq[h] = hourlyOrderData[h] || 0;
+    }
+
+    // Step 1: Compute mean (μ) from first principles
+    let sum = 0;
+    for (let i = 0; i < n; i++) {
+        sum = sum + freq[i];
+    }
+    const mean = sum / n;
+
+    // Step 2: Compute standard deviation (σ) from first principles
+    let squaredDiffSum = 0;
+    for (let i = 0; i < n; i++) {
+        const diff = freq[i] - mean;
+        squaredDiffSum = squaredDiffSum + (diff * diff);
+    }
+    const variance = squaredDiffSum / n;
+    const stdDev = Math.sqrt(variance); // Math.sqrt is a built-in, not a library
+
+    // Step 3: Classify peak hours
+    const threshold = mean + stdDev;
+    const peakHours = [];
+    const hourAnalysis = [];
+
+    for (let i = 0; i < n; i++) {
+        const isPeak = freq[i] > threshold;
+        if (isPeak) peakHours.push(i);
+        hourAnalysis.push({
+            hour: i,
+            orderCount: freq[i],
+            isPeak,
+            label: `${String(i).padStart(2, '0')}:00`
+        });
+    }
+
+    return {
+        hourAnalysis,
+        peakHours,
+        mean: Math.round(mean * 100) / 100,
+        stdDev: Math.round(stdDev * 100) / 100,
+        threshold: Math.round(threshold * 100) / 100
+    };
+}
+
+
+
+
+
+
+// ============================================================
+// ALGORITHM 1: Simple Moving Average (SMA) Revenue Forecasting
+// Formula: SMA(t) = (1/n) × Σ Sales(t-i)  for i = 0 to n-1
+// ============================================================
+function simpleMovingAverage(salesData, windowSize = 7) {
+    if (!salesData || salesData.length === 0) return 0;
+
+    // Use last n days only (sliding window)
+    const window = salesData.slice(-windowSize);
+    const n = window.length;
+
+    if (n === 0) return 0;
+
+    // Manual summation — no reduce/library
+    let sum = 0;
+    for (let i = 0; i < n; i++) {
+        sum = sum + window[i];
+    }
+
+    const sma = sum / n;
+    return Math.round(sma * 100) / 100; // round to 2 decimal places
+}
+
+// Build forecast array for chart (last 7 days actual + next 3 predicted)
+function buildForecastSeries(revenueHistory, windowSize = 7) {
+    const result = [];
+    const data = revenueHistory.map(r => r.totalRevenue);
+
+    for (let i = 0; i < data.length; i++) {
+        result.push({ type: 'actual', value: data[i] });
+    }
+
+    // Predict next 3 days using sliding window
+    let workingData = [...data];
+    for (let day = 1; day <= 3; day++) {
+        const predicted = simpleMovingAverage(workingData, windowSize);
+        result.push({ type: 'predicted', value: predicted });
+        workingData.push(predicted); // slide forward
+    }
+
+    return result;
+}
+
 
 // ============================================================
 // ALGORITHM 4: Dynamic Discount Engine (Multiplicative Stacking)
@@ -202,63 +260,6 @@ function calculateDiscount(subtotal, customerTotalOrders, orderItems, orderHour)
         }
     };
 }
-
-// ============================================================
-// ALGORITHM 5: Peak Hour Detection (Mean + Standard Deviation)
-// μ = Σ f(i) / 24     σ = √(Σ(f(i) - μ)² / 24)
-// Peak if f(hour) > μ + σ
-// ============================================================
-function detectPeakHours(hourlyOrderData) {
-    // hourlyOrderData: array of 24 values (index = hour, value = order count)
-    const n = 24;
-    const freq = new Array(n).fill(0);
-
-    // Fill in provided data
-    for (let h = 0; h < n; h++) {
-        freq[h] = hourlyOrderData[h] || 0;
-    }
-
-    // Step 1: Compute mean (μ) from first principles
-    let sum = 0;
-    for (let i = 0; i < n; i++) {
-        sum = sum + freq[i];
-    }
-    const mean = sum / n;
-
-    // Step 2: Compute standard deviation (σ) from first principles
-    let squaredDiffSum = 0;
-    for (let i = 0; i < n; i++) {
-        const diff = freq[i] - mean;
-        squaredDiffSum = squaredDiffSum + (diff * diff);
-    }
-    const variance = squaredDiffSum / n;
-    const stdDev = Math.sqrt(variance); // Math.sqrt is a built-in, not a library
-
-    // Step 3: Classify peak hours
-    const threshold = mean + stdDev;
-    const peakHours = [];
-    const hourAnalysis = [];
-
-    for (let i = 0; i < n; i++) {
-        const isPeak = freq[i] > threshold;
-        if (isPeak) peakHours.push(i);
-        hourAnalysis.push({
-            hour: i,
-            orderCount: freq[i],
-            isPeak,
-            label: `${String(i).padStart(2, '0')}:00`
-        });
-    }
-
-    return {
-        hourAnalysis,
-        peakHours,
-        mean: Math.round(mean * 100) / 100,
-        stdDev: Math.round(stdDev * 100) / 100,
-        threshold: Math.round(threshold * 100) / 100
-    };
-}
-
 module.exports = {
     simpleMovingAverage,
     buildForecastSeries,

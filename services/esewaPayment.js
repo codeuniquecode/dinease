@@ -4,10 +4,12 @@
  * Docs: https://developer.esewa.com.np/
  *
  * Sandbox credentials (test only):
- *   eSewa ID: 9806800001/2/3/4/5
- *   Password: Nepal@123
- *   MPIN: 1122
- *   OTP: 123456
+ *   eSewa ID: 9711111111/2/3
+Password: Test@123
+MPIN: 1122 (for application only)
+Merchant ID/Service Code: EPAYTEST
+Token:123456
+Secret Key:8gBm/:&EnhH.1/q
  */
 
 const crypto = require('crypto');
