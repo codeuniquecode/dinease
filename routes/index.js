@@ -69,7 +69,7 @@ router.get('/admin/analytics', isAuthenticated, requireRole('admin'), adminContr
 router.get('/admin/reservations', isAuthenticated, requireRole('admin'), adminController.renderReservations);
 router.patch('/admin/reservation/:id/confirm', isAuthenticated, requireRole('admin'), adminController.confirmReservation);
 router.patch('/admin/reservation/:id/cancel', isAuthenticated, requireRole('admin'), adminController.cancelReservation);
-
+router.get('/admin/revenue', isAuthenticated, requireRole('admin'), adminController.renderRevenueLogs);
 module.exports = router;
 
 // ---- eSewa Payment ----

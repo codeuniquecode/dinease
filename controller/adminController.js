@@ -286,3 +286,14 @@ exports.renderAnalytics = async (req, res) => {
         flashMessage: req.flash()
     });
 };
+exports.renderRevenueLogs = async (req, res) => {
+    try {
+        const logs = await RevenueLog.find()
+            .sort({ date: -1 })
+            .limit(30);
+        res.render('admin/revenueLogs', { logs, flashMessage: req.flash() });
+    } catch (err) {
+        req.flash('error', 'Could not load revenue logs');
+        res.redirect('/admin/dashboard');
+    }
+};
