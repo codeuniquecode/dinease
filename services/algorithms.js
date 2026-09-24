@@ -5,7 +5,6 @@
 // ALGORITHM 1: Order Priority Scoring (Weighted Normalization)
 // Priority = W1×Norm(WaitTime) + W2×Norm(TableImportance) + W3×Norm(ItemCount)
 // W1=0.5, W2=0.3, W3=0.2
-// ============================================================
 function calculateOrderPriority(order) {
     const W1 = 0.5; // wait time weight
     const W2 = 0.3; // table importance weight
@@ -37,7 +36,6 @@ function calculateOrderPriority(order) {
     return Math.round(priorityScore * 100) / 100;
 }
 
-// Sort orders array by priority score descending
 function sortOrdersByPriority(orders) {
     // Recalculate scores for all
     const scored = orders.map(order => {
@@ -45,7 +43,6 @@ function sortOrdersByPriority(orders) {
         return { ...order, priorityScore: score };
     });
 
-    // Manual insertion sort (from scratch, no library sort)
     for (let i = 1; i < scored.length; i++) {
         const key = scored[i];
         let j = i - 1;
